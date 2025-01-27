@@ -1,8 +1,8 @@
 {
   "name": "تاكسي العراق",
   "short_name": "تاكسي العراق",
-    "start_url": "/Pasha-Taxi-/",
-      "scope": "/Pasha-Taxi-/",
+    "start_url": "/taxialpasha/",
+      "scope": "/taxialpasha/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#FFD700",
@@ -75,6 +75,6 @@
   ],
   "serviceworker": {
     "src": "/Pasha-Taxi-/firebase-messaging-sw.js",
-    "scope": "/Pasha-Taxi-/"
+    "scope": "/taxialpasha/"
   }
 }
