@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خريطة السائقين</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+    <style>
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script>
+        // Initialize the map
+        const map = L.map('map').setView([33.3152, 44.3661], 10); // Default to Baghdad
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        // Fetch drivers from the database and add markers
+        fetch('https://your-firebase-database-url/drivers.json')
+            .then(response => response.json())
+            .then(data => {
+                Object.keys(data).forEach(key => {
+                    const driver = data[key];
+                    if (driver.coordinates) {
+                        L.marker([driver.coordinates.lat, driver.coordinates.lng])
+                            .addTo(map)
+                            .bindPopup(`<b>${driver.name}</b><br>${driver.vehicle}`);
+                    }
+                });
+            })
+            .catch(error => console.error('Error fetching drivers:', error));
+    </script>
+</body>
+</html>
