@@ -1,4 +1,5 @@
-// firebase-config.js
+// في ملف firebase-config.js
+
 const firebaseConfig = {
     apiKey: "AIzaSyDGpAHia_wEmrhnmYjrPf1n1TrAzwEMiAI",
     authDomain: "messageemeapp.firebaseapp.com",
@@ -9,16 +10,14 @@ const firebaseConfig = {
     appId: "1:255034474844:web:5e3b7a6bc4b2fb94cc4199"
 };
 
-// تهيئة Firebase مرة واحدة فقط
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
+// تهيئة Firebase
+firebase.initializeApp(firebaseConfig);
 
-// تصدير المتغيرات المطلوبة
-const auth = firebase.auth();
+// تهيئة خدمات Firebase
 const database = firebase.database();
 const storage = firebase.storage();
 const messaging = firebase.messaging();
+
 // تكوين FCM مع مفتاح VAPID
 messaging.usePublicVapidKey('BI9cpoewcZa1ftyZ_bGjO0GYa4_cT0HNja4YFd6FwLwHg5c0gQ5iSj_MJZRhMxKdgJ0-d-_rEXcpSQ_cx7GqCSc');
 

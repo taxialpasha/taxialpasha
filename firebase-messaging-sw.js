@@ -1,7 +1,8 @@
-// firebase-messaging-sw.js
+// Import Firebase scripts
 importScripts('https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js');
 importScripts('https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js');
 
+// Firebase configuration
 firebase.initializeApp({
     apiKey: "AIzaSyDGpAHia_wEmrhnmYjrPf1n1TrAzwEMiAI",
     authDomain: "messageemeapp.firebaseapp.com",
