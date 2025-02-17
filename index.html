@@ -70,7 +70,16 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js"></script
+    
+    
+    <!-- إضافة المزيد من الأصوات -->
+<audio id="notificationSound" src="notification-sound.mp3" preload="auto"></audio>
+<audio id="messageSound" src="message-sound.mp3" preload="auto"></audio>
+
+<!-- إضافة الملفات الجديدة -->
+<script type="module" src="user-auth-notifications.js"></script>
+<script type="module" src="notifications-manager.js"></script>
 
 
     <!-- App Scripts -->
@@ -5667,11 +5676,7 @@
               style="display: none;">0</span>
     </a>
 
-    <a class="nav-link position-relative" href="#" data-bs-toggle="modal" data-bs-target="#messagesModal">
-        <i class="fas fa-envelope"></i>
-        <span class="message-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
-              style="display: none;">0</span>
-    </a>
+    
 
     <!-- زر الحساب الشخصي -->
     <a class="nav-link user-profile-btn" href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
@@ -5726,6 +5731,8 @@
                 </button>
                 <nav class="navbar app-header fixed-top">
                     <div class="container d-flex justify-content-between align-items-center">
+                    
+                    
                         <!-- اللوجو واسم التطبيق مع أيقونة البحث -->
                         <div class="d-flex align-items-center app-title">
                             <a class="app-logo d-flex align-items-center" href="index.html">
@@ -5796,6 +5803,12 @@
         <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#notificationsModal">
             <i class="fas fa-bell"></i>
         </a>
+        
+        <a class="nav-link position-relative" href="#" data-bs-toggle="modal" data-bs-target="#messagesModal">
+        <i class="fas fa-envelope"></i>
+        <span class="message-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+              style="display: none;">0</span>
+    </a>
 
         <!-- Profile/Account Icon - يفتح نافذة اختيار نوع الحساب -->
         <a class="nav-link user-profile-btn" href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
