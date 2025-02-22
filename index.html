@@ -6908,7 +6908,6 @@
             <label>نطاق البحث: <span id="radiusValue">5</span> كم</label>
             <input type="range" id="radiusSlider" min="1" max="20" value="5">
         </div>
-
         <div id="nearbyResults" class="nearby-results" style="display: none;">
             <div class="nearby-results-header">
                 <h3>السائقين في الجوار</h3>
@@ -6918,6 +6917,39 @@
             </div>
             <div class="nearby-results-content"></div>
         </div>
+
+        <script>
+            function createDriverCard(driver, key) {
+                // التحقق من حالة الموافقة والنشاط
+                const isApproved = driver.approved === true;
+                const isPending = driver.approvalStatus === 'pending';
+                const isActive = driver.active && isApproved;
+
+                // تحديد نص وألوان الحالة
+                const statusText = !isApproved ? (isPending ? 'قيد المراجعة' : 'غير مفعل') : 
+                                  (isActive ? 'متاح' : 'مشغول');
+                const statusColor = !isApproved ? '#FFD700' : (isActive ? '#2ECC40' : '#FF4136');
+
+                // تحديد حالة التعتيم للبطاقة
+                const cardOpacity = isApproved ? '1' : '0.7';
+
+                return `
+                    <div class="driver-card ${isApproved ? 'approved' : (isPending ? 'pending' : 'not-approved')}" data-driver-id="${key}" style="opacity: ${cardOpacity}">
+                        <div class="driver-image-container">
+                            <img src="${driver.imageUrl || 'https://firebasestorage.googleapis.com/v0/b/messageemeapp.appspot.com/o/driver-images%2F7605a607-6cf8-4b32-aee1-fa7558c98452.png?alt=media&token=5cf9e67c-ba6e-4431-a6a0-79dede15b527'}" class="driver-image">
+                        </div>
+                        <div class="driver-info">
+                            <h3 class="driver-name">${driver.name || 'اسم غير متوفر'}</h3>
+                            <p class="driver-status" style="color: ${statusColor};">${statusText}</p>
+                        </div>
+                        <div class="driver-actions">
+                            <button class="btn btn-primary" onclick="openChatWindow('${key}')" ${!isApproved ? 'disabled' : ''}>مراسلة السائق</button>
+                            <button class="btn btn-secondary" onclick="bookDriver('${key}')" ${!isApproved ? 'disabled' : ''}>حجز</button>
+                        </div>
+                    </div>
+                `;
+            }
+        </script>
 
 
         <!-- Scripts -->
@@ -7386,89 +7418,67 @@
     `;
             }
 
-
-
-
             function viewDriverLocation(driverId) {
-                isViewingDriverLocation = true; // تعطيل تحديث موقع المستخدم
+    database.ref(`drivers/${driverId}`).once('value', (snapshot) => {
+        const driver = snapshot.val();
+        if (driver && driver.coordinates) {
+            // التحقق من حالة الموافقة
+            const isApproved = driver.approved === true;
+            const isPending = driver.approvalStatus === 'pending';
+            const { lat, lng } = driver.coordinates;
 
-                database.ref(`drivers/${driverId}`).once('value', (snapshot) => {
-                    const driver = snapshot.val();
-                    if (driver && driver.coordinates) {
-                        const { lat, lng } = driver.coordinates;
+            map.flyTo([lat, lng], 15, {
+                animate: true,
+                duration: 1.5
+            });
 
-                        // تعيين موقع الخريطة إلى موقع السائق
-                        map.setView([lat, lng], 15);
+            markerLayer.clearLayers();
 
-                        // إضافة علامة موقع السائق
-                        const driverMarker = L.marker([lat, lng], {
-                            icon: L.divIcon({
-                                html: `<i class="fas fa-taxi" style="color: #FFD700;"></i>`,
-                                className: 'driver-marker',
-                                iconSize: [30, 30],
-                            }),
-                        }).addTo(markerLayer);
-
-                        driverMarker.bindPopup(`
-                <div style="text-align: center;">
-                    <h6>${driver.name}</h6>
-                    <p>${driver.carType} - ${driver.carModel}</p>
-                    <button class="action-btn secondary" onclick="openChatWindow('${key}')">
-    <i class="fas fa-comment"></i> مراسلة
-</button>
-
-
-                </div>
-            `).openPopup();
-
-                        scrollToMap();
-                    } else {
-                        showToast('لم يتم إضافة موقع للسائق', 'error');
-                    }
-                });
-
-                // إعادة تفعيل تحديث موقع المستخدم بعد فترة
-                setTimeout(() => {
-                    isViewingDriverLocation = false;
-                }, 30000); // 30 ثانية
-            }
-            function viewDriverLocation(driverId) {
-                database.ref(`drivers/${driverId}`).once('value', (snapshot) => {
-                    const driver = snapshot.val();
-                    if (driver && driver.coordinates) {
-                        const { lat, lng } = driver.coordinates;
-                        map.flyTo([lat, lng], 15, {
-                            animate: true,
-                            duration: 1.5
-                        });
-
-                        markerLayer.clearLayers();
-
-                        const driverMarker = L.marker([lat, lng], {
-                            icon: L.divIcon({
-                                html: `
-                        <div style="position: relative; text-align: center;">
+            // تعديل مظهر العلامة حسب حالة الموافقة
+            const driverMarker = L.marker([lat, lng], {
+                icon: L.divIcon({
+                    html: `
+                        <div style="position: relative; text-align: center;" class="${isApproved ? 'approved' : (isPending ? 'pending' : 'not-approved')}">
                             <img src="${driver.imageUrl || 'https://firebasestorage.googleapis.com/v0/b/messageemeapp.appspot.com/o/driver-images%2F7605a607-6cf8-4b32-aee1-fa7558c98452.png?alt=media&token=5cf9e67c-ba6e-4431-a6a0-79dede15b527'}" 
                                  alt="صورة السائق" 
                                  style="width: 50px; height: 50px; border: 3px solid #FFD700; 
-                                 border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                                 border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                                 filter: ${!isApproved ? 'grayscale(100%)' : 'none'};
+                                 opacity: ${!isApproved ? '0.7' : '1'};">
                             <i class="fas fa-taxi" 
                                style="position: absolute; bottom: -5px; right: 50%; transform: translateX(50%); 
-                               color: #FFD700; font-size: 1.5rem;"></i>
+                               color: ${isApproved ? '#FFD700' : '#999'}; font-size: 1.5rem;"></i>
+                            ${!isApproved ? `
+                            <div class="status-badge" style="position: absolute; top: -10px; right: -10px; 
+                                 background: ${isPending ? '#FFD700' : '#dc3545'}; color: ${isPending ? '#000' : '#fff'};
+                                 padding: 3px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: bold;">
+                                ${isPending ? 'قيد المراجعة' : 'غير مفعل'}
+                            </div>` : ''}
                         </div>
                     `,
-                                className: 'driver-marker',
-                                iconSize: [60, 60],
-                            }),
-                        }).addTo(markerLayer);
+                    className: 'driver-marker',
+                    iconSize: [60, 60],
+                }),
+            }).addTo(markerLayer);
 
-                        const popupContent = `
-                <div style="text-align: center; font-family: 'Segoe UI', sans-serif; min-width: 200px; background: #000000; border-radius: 10px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+            // تحديث محتوى النافذة المنبثقة
+            const popupContent = `
+                <div style="text-align: center; font-family: 'Segoe UI', sans-serif; min-width: 200px; 
+                     background: #000000; border-radius: 10px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                    ${!isApproved ? `
+                    <div class="status-banner" style="background: ${isPending ? '#FFD700' : '#dc3545'}; 
+                         color: ${isPending ? '#000' : '#fff'}; padding: 5px; margin: -15px -15px 15px -15px; 
+                         border-radius: 10px 10px 0 0; font-weight: bold;">
+                        ${isPending ? 'هذا السائق قيد المراجعة' : 'هذا السائق غير مفعل حالياً'}
+                    </div>
+                    ` : ''}
+                    
                     <div class="driver-popup-header" style="margin-bottom: 10px;">
                         <img src="${driver.imageUrl || 'https://firebasestorage.googleapis.com/v0/b/messageemeapp.appspot.com/o/driver-images%2F7605a607-6cf8-4b32-aee1-fa7558c98452.png?alt=media&token=5cf9e67c-ba6e-4431-a6a0-79dede15b527'}" 
                              alt="صورة السائق" 
                              style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #FFD700; 
-                             margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+                             margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+                             filter: ${!isApproved ? 'grayscale(100%)' : 'none'};">
                         <h5 style="color: #FFFFFF; font-weight: bold; margin: 8px 0;">${driver.name}</h5>
                     </div>
                     
@@ -7505,49 +7515,64 @@
                     <div class="driver-popup-actions" style="display: grid; grid-template-columns: 1fr; gap: 8px;">
                         <button onclick="openChatWindow('${driverId}')" 
                                 style="background: #FFD700; color: #333; border: none; padding: 8px 15px; 
-                                border-radius: 20px; cursor: pointer; font-weight: bold; 
-                                display: flex; align-items: center; justify-content: center; gap: 5px;
-                                transition: all 0.3s ease;">
+                                border-radius: 20px; cursor: ${isApproved ? 'pointer' : 'not-allowed'}; 
+                                font-weight: bold; display: flex; align-items: center; justify-content: center; 
+                                gap: 5px; transition: all 0.3s ease; opacity: ${isApproved ? '1' : '0.5'};"
+                                ${!isApproved ? 'disabled' : ''}>
                             <i class="fas fa-comment"></i>
-                            مراسلة السائق
+                            ${isApproved ? 'مراسلة السائق' : 'غير متاح حالياً'}
                         </button>
                     </div>
                 </div>
             `;
 
+            driverMarker.bindPopup(popupContent, {
+                maxWidth: 300,
+                className: 'custom-popup'
+            }).openPopup();
 
-                        driverMarker.bindPopup(popupContent, {
-                            maxWidth: 300,
-                            className: 'custom-popup'
-                        }).openPopup();
+            scrollToMap();
 
-                        scrollToMap();
-
-                        Swal.fire({
-                            title: '🚖 تم تحديد موقع السائق!',
-                            html: `
-                    <p style="font-size: 1rem; color: #555;">
-                        السائق <b>${driver.name}</b> بانتظارك.
-                    </p>
-                    <p style="color: #666;">هل ترغب بمراسلته الآن؟</p>
-                `,
-                            icon: 'success',
-                            showCancelButton: true,
-                            confirmButtonColor: '#FFD700',
-                            cancelButtonColor: '#6c757d',
-                            confirmButtonText: '📨 نعم، مراسلة السائق',
-                            cancelButtonText: '❌ إغلاق',
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                openChatWindow(driverId);
-                            }
-                        });
-                    } else {
-                        showToast('لم يتم العثور على موقع السائق.', 'error');
+            // تعديل رسالة التأكيد حسب حالة الموافقة
+            if (isApproved) {
+                Swal.fire({
+                    title: '🚖 تم تحديد موقع السائق!',
+                    html: `
+                        <p style="font-size: 1rem; color: #555;">
+                            السائق <b>${driver.name}</b> بانتظارك.
+                        </p>
+                        <p style="color: #666;">هل ترغب بمراسلته الآن؟</p>
+                    `,
+                    icon: 'success',
+                    showCancelButton: true,
+                    confirmButtonColor: '#FFD700',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: '📨 نعم، مراسلة السائق',
+                    cancelButtonText: '❌ إغلاق',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        openChatWindow(driverId);
                     }
                 });
+            } else {
+                Swal.fire({
+                    title: 'تنبيه!',
+                    html: `
+                        <p style="font-size: 1rem; color: #555;">
+                            السائق <b>${driver.name}</b> ${isPending ? 'قيد المراجعة' : 'غير مفعل حالياً'}.
+                        </p>
+                        <p style="color: #666;">لا يمكن التواصل مع السائق حتى يتم تفعيل حسابه.</p>
+                    `,
+                    icon: 'warning',
+                    confirmButtonColor: '#6c757d',
+                    confirmButtonText: 'حسناً'
+                });
             }
-
+        } else {
+            showToast('لم يتم العثور على موقع السائق.', 'error');
+        }
+    });
+}
 
             // تحسين دالة initMap لدعم تبديل الطبقات
             function initMap() {
@@ -8237,6 +8262,63 @@
             
 
 
+            // تحديث دالة createDriverCard لتشمل حالة الموافقة
+function createDriverMarkerPopup(driver, driverId) {
+    // التحقق من حالة الموافقة
+    const isApproved = driver.approved === true;
+    const isPending = driver.approvalStatus === 'pending';
+    const statusText = isApproved ? 'مفعل' : (isPending ? 'قيد المراجعة' : 'غير مفعل');
+    const statusColor = isApproved ? '#2ECC40' : (isPending ? '#FFD700' : '#FF4136');
+
+    return `
+        <div class="driver-popup ${isApproved ? 'approved' : (isPending ? 'pending' : 'not-approved')}">
+            <div class="driver-popup-header">
+                <div class="popup-status" style="background-color: ${statusColor}; color: ${isApproved ? '#fff' : '#000'}">
+                    ${statusText}
+                </div>
+                <img src="${driver.imageUrl || 'default-driver.png'}" 
+                     alt="${driver.name}"
+                     style="filter: ${!isApproved ? 'grayscale(100%)' : 'none'}; 
+                            opacity: ${!isApproved ? '0.7' : '1'}">
+                <h4>${driver.name}</h4>
+                <div class="driver-rating">
+                    <i class="fas fa-star"></i> ${driver.rating ? driver.rating.toFixed(1) : '5.0'}
+                </div>
+            </div>
+            
+            <div class="driver-popup-info">
+                <p><i class="fas fa-car"></i> ${driver.carType} ${driver.carModel}</p>
+                <p><i class="fas fa-map-marker-alt"></i> ${driver.location}</p>
+                <p><i class="fas fa-phone"></i> ${driver.phone}</p>
+            </div>
+
+            <div class="driver-popup-actions">
+                <button onclick="openChatWindow('${driverId}')" 
+                        class="chat-btn ripple"
+                        ${!isApproved ? 'disabled' : ''}>
+                    <i class="fas fa-comment"></i>
+                    مراسلة
+                </button>
+                <button onclick="bookDriver('${driverId}')"
+                        class="book-btn ripple"
+                        ${!isApproved ? 'disabled' : ''}>
+                    <i class="fas fa-taxi"></i>
+                    حجز
+                </button>
+            </div>
+
+            ${!isApproved ? `
+                <div class="approval-notice">
+                    ${isPending ? 
+                        'هذا السائق قيد المراجعة. سيتم تفعيل الحساب قريباً.' : 
+                        'هذا الحساب غير مفعل. يرجى انتظار الموافقة.'}
+                </div>
+            ` : ''}
+        </div>
+    `;
+}
+
+
            // دالة تحديث عرض بطاقة السائق
 function createDriverCard(driver, key) {
     // التحقق من حالة الموافقة
@@ -8496,89 +8578,93 @@ function createDriverCard(driver, key) {
     `;
             }
 
-            // تحديث دالة تحميل السائقين مع فرز حسب المسافة
-            function loadDrivers(location = 'all') {
-                if (isLoadingDrivers) return;
-                isLoadingDrivers = true;
-                showLoading();
+           
+// تحديث دالة تحميل السائقين
+function loadDrivers(location = 'all') {
+    if (isLoadingDrivers) return;
+    isLoadingDrivers = true;
+    showLoading();
 
-                const driversRef = database.ref('drivers');
-                driversRef.once('value')
-                    .then((snapshot) => {
-                        const driversGrid = document.getElementById('driversGrid');
-                        driversGrid.innerHTML = '';
-                        markerLayer.clearLayers();
+    database.ref('drivers').once('value')
+        .then((snapshot) => {
+            const driversGrid = document.getElementById('driversGrid');
+            driversGrid.innerHTML = '';
+            markerLayer.clearLayers();
 
-                        const driversArray = [];
-                        snapshot.forEach((childSnapshot) => {
-                            const driver = childSnapshot.val();
-                            const key = childSnapshot.key;
+            snapshot.forEach((childSnapshot) => {
+                const driver = childSnapshot.val();
+                const driverId = childSnapshot.key;
 
-                            if (location === 'all' || driver.location === location) {
-                                const distance = userLocation && driver.coordinates ?
-                                    calculateDistance(userLocation, driver.coordinates) : 999999;
+                if (location === 'all' || driver.location === location) {
+                    // إضافة بطاقة السائق
+                    const driverCard = createDriverCard(driver, driverId);
+                    driversGrid.appendChild(driverCard);
 
-                                driversArray.push({
-                                    ...driver,
-                                    id: key,
-                                    distance: distance
-                                });
-                            }
-                        });
+                    // إضافة علامة السائق على الخريطة
+                    if (driver.coordinates) {
+                        const { lat, lng } = driver.coordinates;
+                        const marker = createDriverMarker(driver, driverId, [lat, lng]);
+                        marker.bindPopup(createDriverMarkerPopup(driver, driverId));
+                        marker.addTo(markerLayer);
+                    }
+                }
+            });
+        })
+        .catch((error) => {
+            console.error('Error loading drivers:', error);
+            showToast('حدث خطأ في تحميل بيانات السائقين', 'error');
+        })
+        .finally(() => {
+            hideLoading();
+            isLoadingDrivers = false;
+        });
+}
 
-                        // فرز السائقين حسب المسافة
-                        driversArray.sort((a, b) => a.distance - b.distance);
 
-                        // عرض السائقين
-                        driversArray.forEach(driver => {
-                            driversGrid.innerHTML += createDriverCard(driver, driver.id);
-                            addDriverMarker(driver, driver.id);
-                        });
-                    })
-                    .catch((error) => {
-                        console.error('Error loading drivers:', error);
-                        showToast('حدث خطأ في تحميل بيانات السائقين', 'error');
-                    })
-                    .finally(() => {
-                        hideLoading();
-                        isLoadingDrivers = false;
-                    });
-            }
 
-            // إضافة أنماط CSS للمسافات
-            const styleSheet = document.createElement('style');
-            styleSheet.textContent = `
-    .distance-badge {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        padding: 5px 10px;
-        border-radius: 15px;
-        font-size: 0.8rem;
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        backdrop-filter: blur(5px);
+// تحديث CSS للعناصر المقيدة
+const style = document.createElement('style');
+style.textContent = `
+    .driver-card.not-approved {
+        opacity: 0.7;
+        filter: grayscale(100%);
     }
 
-    .distance-near .distance-badge {
-        background-color: rgba(46, 204, 64, 0.9);
-        color: white;
+    .driver-card.pending {
+        opacity: 0.85;
+        filter: grayscale(30%);
     }
 
-    .distance-medium .distance-badge {
-        background-color: rgba(255, 215, 0, 0.9);
-        color: black;
+    .driver-card.not-approved .driver-actions button,
+    .driver-card.pending .driver-actions button {
+        pointer-events: none;
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 
-    .distance-far .distance-badge {
-        background-color: rgba(255, 59, 48, 0.9);
-        color: white;
+    .approval-notice {
+        background: rgba(255, 0, 0, 0.1);
+        color: #FF4136;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 5px;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+
+    .driver-popup.not-approved img,
+    .driver-popup.pending img {
+        filter: grayscale(100%);
+        opacity: 0.7;
+    }
+
+    .driver-popup.not-approved button,
+    .driver-popup.pending button {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 `;
-            document.head.appendChild(styleSheet);
-
+document.head.appendChild(style);
             function toRad(degrees) {
                 return degrees * Math.PI / 180;
             }
@@ -8645,7 +8731,8 @@ function createDriverCard(driver, key) {
                                         style="background: #FFD700; color: #333; border: none; 
                                                padding: 8px 15px; border-radius: 20px; width: 100%;
                                                cursor: pointer; display: flex; align-items: center; 
-                                               justify-content: center; gap: 5px; font-weight: bold;">
+                                               justify-content: center; gap: 5px; font-weight: bold;"
+                                        ${!driver.approved ? 'disabled' : ''}>
                                     <i class="fas fa-comment"></i>
                                     مراسلة السائق
                                 </button>
