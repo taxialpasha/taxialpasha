@@ -6135,7 +6135,7 @@
 
 
 
-        <!-- Add Driver Modal -->
+        <!-- Add Driver زر اضافة السائقين من قبل الادمنModal -->
         <div class="modal fade" id="addDriverModal" tabindex="-1">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
@@ -6463,52 +6463,51 @@
                 </div>
             </div>
         </div>
-
-      <!-- تعديل نافذة اختيار نوع الحساب -->
-<div class="modal fade" id="profileModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header border-0 text-center">
-                <h5 class="modal-title w-100">اختر العملية</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body py-4">
-                <div class="row g-4">
-                    <!-- زر تسجيل الدخول -->
-                    <div class="col-12 mb-3">
-                        <div class="account-type-card" onclick="openLoginModal()">
-                            <div class="icon-container mb-3">
-                                <i class="fas fa-sign-in-alt fa-3x"></i>
-                            </div>
-                            <h6>تسجيل الدخول</h6>
-                            <p class="small text-muted">لديك حساب بالفعل؟ سجل دخولك</p>
-                        </div>
+        <!-- تعديل نافذة اختيار نوع الحساب -->
+        <div class="modal fade" id="profileModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header border-0 text-center">
+                        <h5 class="modal-title w-100">اختر العملية</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <!-- زر تسجيل كسائق -->
-                    <div class="col-6">
-                        <div class="account-type-card" onclick="openDriverRegistration()">
-                            <div class="icon-container mb-3">
-                                <i class="fas fa-taxi fa-3x"></i>
+                    <div class="modal-body py-4">
+                        <div class="row g-4">
+                            <!-- زر تسجيل الدخول -->
+                            <div class="col-12 mb-3">
+                                <div class="account-type-card" onclick="openLoginModal()">
+                                    <div class="icon-container mb-3">
+                                        <i class="fas fa-sign-in-alt fa-3x"></i>
+                                    </div>
+                                    <h6>تسجيل الدخول</h6>
+                                    <p class="small text-muted">لديك حساب بالفعل؟ سجل دخولك</p>
+                                </div>
                             </div>
-                            <h6>تسجيل كسائق</h6>
-                            <p class="small text-muted">انضم إلى فريق السائقين</p>
-                        </div>
-                    </div>
-                    <!-- زر تسجيل كمستخدم -->
-                    <div class="col-6">
-                        <div class="account-type-card" onclick="openUserRegistration()">
-                            <div class="icon-container mb-3">
-                                <i class="fas fa-user fa-3x"></i>
+                            <!-- زر انشاء حساب -->
+                            <div class="col-12">
+                                <div class="account-type-card" onclick="openUserRegistration()">
+                                    <div class="icon-container mb-3">
+                                        <i class="fas fa-user fa-3x"></i>
+                                    </div>
+                                    <h6>انشاء حساب</h6>
+                                    <p class="small text-muted">احجز رحلاتك بسهولة</p>
+                                </div>
                             </div>
-                            <h6>تسجيل كمستخدم</h6>
-                            <p class="small text-muted">احجز رحلاتك بسهولة</p>
+                            <!-- زر إضافة سائق -->
+                            <div class="col-12">
+                                <div class="account-type-card" onclick="showAddDriverModal()">
+                                    <div class="icon-container mb-3">
+                                        <i class="fas fa-user-plus fa-3x"></i>
+                                    </div>
+                                    <h6>إضافة سائق</h6>
+                                    <p class="small text-muted">أضف سائق جديد إلى النظام</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
 <!-- نافذة تسجيل الدخول -->
 <div class="modal fade" id="loginModal" tabindex="-1">
@@ -9160,20 +9159,114 @@
             function hideLoading() {
                 document.getElementById('loadingSpinner').style.display = 'none';
             }
+// دالة لعرض نافذة إضافة السائق
+function showAddDriverModal() {
+    // إغلاق نافذة اختيار العملية أولاً
+    const profileModal = bootstrap.Modal.getInstance(document.getElementById('profileModal'));
+    if (profileModal) {
+        profileModal.hide();
+    }
 
-            function showAddDriverModal() {
-                const modal = new bootstrap.Modal(document.getElementById('addDriverModal'));
-                modal.show();
-            }
-            window.addEventListener('scroll', function () {
-                const filter = document.querySelector('.location-filter');
-                if (window.scrollY > 100) {
-                    filter.classList.add('sticky');
-                } else {
-                    filter.classList.remove('sticky');
-                }
-            });
+    // انتظار قليلاً قبل فتح النافذة الجديدة
+    setTimeout(() => {
+        // إظهار نافذة إضافة السائق
+        const addDriverModal = new bootstrap.Modal(document.getElementById('addDriverModal'));
+        addDriverModal.show();
+    }, 150); // تأخير بسيط للحصول على انتقال سلس
+}
 
+// دالة لعرض نافذة تسجيل الدخول
+function openLoginModal() {
+    const profileModal = bootstrap.Modal.getInstance(document.getElementById('profileModal'));
+    if (profileModal) {
+        profileModal.hide();
+    }
+
+    setTimeout(() => {
+        const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+        loginModal.show();
+    }, 150);
+}
+
+// دالة لفتح نافذة تسجيل المستخدم
+function openUserRegistration() {
+    const profileModal = bootstrap.Modal.getInstance(document.getElementById('profileModal'));
+    if (profileModal) {
+        profileModal.hide();
+    }
+
+    setTimeout(() => {
+        const userModal = new bootstrap.Modal(document.getElementById('userRegistrationModal'));
+        userModal.show();
+    }, 150);
+}
+
+// دالة معالجة إضافة سائق
+async function handleAddDriver(event) {
+    event.preventDefault();
+    showLoading();
+
+    try {
+        const formData = new FormData(event.target);
+        const imageFile = document.getElementById('driverImage').files[0];
+        
+        if (!imageFile) {
+            throw new Error('الرجاء اختيار صورة للسائق');
+        }
+
+        // الحصول على الإحداثيات
+        const latitude = parseFloat(document.getElementById('driverLatitude').value);
+        const longitude = parseFloat(document.getElementById('driverLongitude').value);
+
+        if (!latitude || !longitude) {
+            throw new Error('يرجى تحديد موقع السائق أولاً');
+        }
+
+        // رفع الصورة إلى Firebase Storage
+        const imageRef = storage.ref(`drivers/${Date.now()}_${imageFile.name}`);
+        const uploadTask = await imageRef.put(imageFile);
+        const imageUrl = await uploadTask.ref.getDownloadURL();
+
+        // تجهيز بيانات السائق
+        const driverData = {
+            name: formData.get('driverName'),
+            phone: formData.get('driverPhone'),
+            carType: formData.get('carType'),
+            carModel: formData.get('carModel'),
+            location: formData.get('driverLocation'),
+            coordinates: {
+                lat: latitude,
+                lng: longitude
+            },
+            bio: formData.get('driverBio'),
+            imageUrl: imageUrl,
+            rating: 5,
+            trips: 0,
+            active: true,
+            createdAt: firebase.database.ServerValue.TIMESTAMP
+        };
+
+        // حفظ البيانات في Firebase Database
+        await database.ref('drivers').push(driverData);
+
+        // إغلاق النافذة المنبثقة وإعادة تعيين النموذج
+        const modal = bootstrap.Modal.getInstance(document.getElementById('addDriverModal'));
+        modal.hide();
+        event.target.reset();
+
+        // عرض رسالة نجاح
+        showToast('تم إضافة السائق بنجاح');
+        
+        // تحديث قائمة السائقين
+        loadDrivers();
+
+    } catch (error) {
+        console.error('Error adding driver:', error);
+        showToast(error.message, 'error');
+    } finally {
+        hideLoading();
+    }
+}
 
             // دالة البحث الرئيسية
             function searchDrivers(searchTerm, searchType = 'all') {
@@ -9474,6 +9567,7 @@
                     hideLoading();
                 }
             }
+            
 
             // تحديث دالة معالجة تسجيل المستخدم
             async function handleUserRegistration(event) {
