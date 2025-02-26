@@ -10,15 +10,16 @@ const firebaseConfig = {
     appId: "1:255034474844:web:5e3b7a6bc4b2fb94cc4199"
 };
 
-// تهيئة Firebase
-firebase.initializeApp(firebaseConfig);
+// Initialize Firebase if not already initialized
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 
-// تهيئة خدمات Firebase
+// Initialize Firebase services
 const database = firebase.database();
-const storage = firebase.storage();
 const messaging = firebase.messaging();
 
-// تكوين FCM مع مفتاح VAPID
+// Configure FCM with VAPID key
 messaging.usePublicVapidKey('BI9cpoewcZa1ftyZ_bGjO0GYa4_cT0HNja4YFd6FwLwHg5c0gQ5iSj_MJZRhMxKdgJ0-d-_rEXcpSQ_cx7GqCSc');
 
 // دالة لتحديث token الإشعارات للمستخدم
@@ -44,13 +45,13 @@ messaging.onTokenRefresh(async () => {
             await database.ref(`users/${userId}/notificationToken`).set(token);
         }
     } catch (error) {
-        console.error('خطأ في تحديث token الإشعارات:', error);
+        console.error('Error updating notification token:', error);
     }
 });
 
 // معالجة الإشعارات عندما يكون التطبيق مفتوحاً
 messaging.onMessage((payload) => {
-    console.log('تم استلام إشعار:', payload);
+    console.log('Message received:', payload);
     
     // إنشاء وإظهار الإشعار
     const notification = payload.notification;
@@ -62,7 +63,7 @@ messaging.onMessage((payload) => {
 
     // تشغيل صوت الإشعار
     const audio = new Audio('/notification-sound.mp3');
-    audio.play().catch(error => console.log('لا يمكن تشغيل صوت الإشعار:', error));
+    audio.play().catch(error => console.log('Unable to play notification sound:', error));
 });
 
 // دالة للتحقق من صلاحيات الموقع
@@ -79,23 +80,16 @@ async function checkLocationPermission() {
     return !!navigator.geolocation;
 }
 
-// تحديث Service Worker للإشعارات في الخلفية
+// Register Service Worker for background notifications
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/firebase-messaging-sw.js')
         .then((registration) => {
             messaging.useServiceWorker(registration);
-            console.log('تم تسجيل Service Worker بنجاح');
+            console.log('Service Worker registered successfully');
         })
         .catch((error) => {
-            console.error('خطأ في تسجيل Service Worker:', error);
+            console.error('Service Worker registration failed:', error);
         });
 }
-
 // تصدير المتغيرات والدوال
-export {
-    database,
-    storage,
-    messaging,
-    updateNotificationToken,
-    checkLocationPermission
-};
+export { handleUserRegistration, handleDriverRegistration };
