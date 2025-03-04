@@ -9059,6 +9059,10 @@
                 // تحديد حالة التعتيم للبطاقة
                 const cardOpacity = isApproved ? '1' : '0.7';
 
+                // الحصول على معرف المستخدم الحالي
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                const isCurrentDriver = currentUser && currentUser.role === 'driver' && currentUser.uid === key;
+
                 return `
         <div class="driver-card animate__animated animate__fadeIn" 
              style="background-color: #000000; color: #FFFFFF; border-radius: 20px; 
@@ -9078,7 +9082,7 @@
                      class="driver-image" style="width: 100%; height: 200px; object-fit: cover; 
                      border-bottom: 3px solid #FFD700; ${!isApproved ? 'filter: grayscale(50%);' : ''}">
                 
-                ${isApproved ? `
+                ${isApproved && isCurrentDriver ? `
                     <div class="driver-status ${isActive ? 'status-active' : 'status-inactive'}" 
                          onclick="toggleDriverStatus('${key}', ${isActive})"
                          style="position: absolute; top: 10px; right: 10px; padding: 5px 10px; 
@@ -9131,23 +9135,45 @@
 
             <div class="driver-actions" style="display: flex; justify-content: space-between; 
                                              padding: 10px; ${!isApproved ? 'pointer-events: none; opacity: 0.7;' : ''}">
-  <div class="driver-actions">
                 <button class="action-btn primary" onclick="viewDriverLocation('${key}')">
                     <i class="fas fa-map-marker-alt"></i>
                     عرض الموقع
                 </button>
                 <button class="action-btn secondary" 
-                        onclick="openChatWindow('${key}')" 
+                        onclick="openChatWindow('${key}')"
                         style="background: #333; color: #FFD700; padding: 10px 20px; 
                                border-radius: 20px; border: 1px solid #FFD700; 
                                cursor: pointer; font-weight: bold; transition: all 0.3s;"
                         ${!isApproved ? 'disabled' : ''}>
                     <i class="fas fa-comment"></i> مراسلة
                 </button>
+                ${isCurrentDriver ? `
+                <button class="action-btn toggle-status-btn" 
+                        onclick="toggleDriverStatus('${key}', ${isActive})"
+                        style="background: ${isActive ? '#FF4136' : '#2ECC40'}; color: #FFFFFF; padding: 10px 20px; 
+                               border-radius: 20px; border: none; cursor: pointer; font-weight: bold; transition: all 0.3s;">
+                    ${isActive ? 'تعطيل' : 'تفعيل'}
+                </button>
+                ` : ''}
             </div>
         </div>
     `;
             }
+
+            function toggleDriverStatus(driverId, isActive) {
+                const newStatus = !isActive;
+                database.ref(`drivers/${driverId}`).update({
+                    active: newStatus
+                }).then(() => {
+                    showToast(`تم ${newStatus ? 'تفعيل' : 'تعطيل'} السائق بنجاح`, 'success');
+                    loadDrivers(); // تحديث العرض
+                }).catch((error) => {
+                    console.error('Error updating driver status:', error);
+                    showToast('حدث خطأ أثناء تحديث حالة السائق', 'error');
+                });
+            }
+
+
 
             function startDriverLocationTracking(driverId) {
                 // ... الكود السابق ...
