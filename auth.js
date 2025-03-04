@@ -244,7 +244,7 @@ function updateUIAfterLogin(userData) {
                 </div>
                 ${userData.userType === 'driver' ? `
                 <div class="mt-3">
-                    <button onclick="toggleDriverAvailability()" class="btn btn-outline-primary btn-sm w-100">
+                    <button onclick="toggleDriverAvailability()" class="btn btn-outline-primary btn-sm w-100 toggle-availability-btn">
                         <i class="fas fa-toggle-on me-2"></i>${userData.isAvailable ? 'مشغول' : 'متاح'}
                     </button>
                 </div>
