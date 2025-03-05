@@ -54,7 +54,7 @@
         content="https://firebasestorage.googleapis.com/v0/b/messageemeapp.appspot.com/o/driver-images%2F7605a607-6cf8-4b32-aee1-fa7558c98452.png?alt=media&token=5cf9e67c-ba6e-4431-a6a0-79dede15b527">
 </head>
 
-<body>
+
     <!-- Content will be here -->
 
     <!-- External Libraries -->
@@ -5956,78 +5956,27 @@
     <body>
 
         <body>
-            <!-- تحديث شريط الأدوات في الأعلى -->
-            <div class="tools">
-                <a class="nav-link position-relative" href="#" data-bs-toggle="modal" data-bs-target="#searchModal">
-                    <i class="fas fa-search"></i>
-                </a>
-
-                <a class="nav-link position-relative" href="#" data-bs-toggle="modal"
-                    data-bs-target="#notificationsModal">
-                    <i class="fas fa-bell"></i>
-                    <span
-                        class="notification-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                        style="display: none;">0</span>
-                </a>
+         
 
 
+         
 
-                <!-- زر الحساب الشخصي -->
-                <a class="nav-link user-profile-btn" href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
-                    <i class="fas fa-user"></i>
-                    <span class="ms-1 d-none d-md-inline">تسجيل</span>
-                </a>
-            </div>
 
-            <!-- إضافة نوافذ الإشعارات والرسائل -->
-            <!-- نافذة الإشعارات -->
-            <div class="modal fade" id="notificationsModal" tabindex="-1">
-                <div class="modal-dialog modal-dialog-scrollable">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">الإشعارات</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="notifications-list"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- نافذة الرسائل -->
-            <div class="modal fade" id="messagesModal" tabindex="-1">
-                <div class="modal-dialog modal-dialog-scrollable">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">الرسائل</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="messages-list"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <!-- Header -->
-            <nav class="navbar navbar-expand-lg navbar-dark app-header fixed-top">
+          
 
-                <div class="container">
-                    <a class="app-logo navbar-brand" href="#">
-                        <i class="fas fa-taxi"></i>
-                        تاكسي العراق
+                
                     </a>
                     <!-- زر فتح الشريط الجانبي -->
                     <button class="nav-toggle" onclick="toggleSideNav()">
                         <i class="fas fa-bars"></i>
                     </button>
                     <nav class="navbar app-header fixed-top">
-                        <div class="container d-flex justify-content-between align-items-center">
                             <!-- اللوجو واسم التطبيق مع أيقونة البحث -->
                             <div class="d-flex align-items-center app-title">
                                 <a class="app-logo d-flex align-items-center" href="map.html">
                                     <i class="fas fa-taxi me-2"></i>
-                                    <span>ataxiPash</span>
+                                    <span>ataxi</span>
                                 </a>
                                 <!-- أيقونة البحث بجانب الاسم -->
                                 <div class="side-nav" id="sideNav">
@@ -6098,26 +6047,99 @@
         <div class="tools d-flex align-items-center">
             <!-- Search Icon -->
             <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#searchModal">
-                <i class="fas fa-search"></i>
+            <i class="fas fa-search"></i>
             </a>
 
             <!-- Notifications Icon -->
             <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#notificationsModal">
-                <i class="fas fa-bell"></i>
+            <i class="fas fa-bell"></i>
             </a>
             <a class="nav-link position-relative" href="#" data-bs-toggle="modal" data-bs-target="#messagesModal">
-                <i class="fas fa-envelope"></i>
-                <span
-                    class="message-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                    style="display: none;">0</span>
+            <i class="fas fa-envelope"></i>
+            <span
+                class="message-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                style="display: none;">0</span>
             </a>
 
             <!-- Profile/Account Icon - يفتح نافذة اختيار نوع الحساب -->
             <a class="nav-link user-profile-btn" href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
-                <i class="fas fa-user"></i>
-                <span class="ms-1 d-none d-md-inline">تسجيل</span>
+            <img id="userProfileImage" src="default-profile.png" alt="Profile" class="rounded-circle" style="width: 35px; height: 35px; display: none;">
+            <i class="fas fa-user" id="defaultProfileIcon"></i>
+            <span class="ms-1 d-none d-md-inline" id="profileText">تسجيل</span>
             </a>
         </div>
+
+        <script>
+            function updateProfileIcon(user) {
+            const profileImage = document.getElementById('userProfileImage');
+            const defaultIcon = document.getElementById('defaultProfileIcon');
+            const profileText = document.getElementById('profileText');
+
+            if (user && user.photoURL) {
+                profileImage.src = user.photoURL;
+                profileImage.style.display = 'block';
+                defaultIcon.style.display = 'none';
+                profileText.style.display = 'none';
+            } else {
+                profileImage.style.display = 'none';
+                defaultIcon.style.display = 'block';
+                profileText.style.display = 'block';
+            }
+            }
+
+            // Example usage after user login
+            firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                updateProfileIcon(user);
+            }
+            });
+        function updateProfileIcon(user) {
+            const profileImage = document.getElementById('userProfileImage');
+            const defaultIcon = document.getElementById('defaultProfileIcon');
+            const profileText = document.getElementById('profileText');
+
+            if (user && user.photoURL) {
+                profileImage.src = user.photoURL;
+                profileImage.style.display = 'block';
+                defaultIcon.style.display = 'none';
+                profileText.style.display = 'none';
+            } else {
+                profileImage.style.display = 'none';
+                defaultIcon.style.display = 'block';
+                profileText.style.display = 'block';
+            }
+        }
+
+        // Example usage after user login
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                updateProfileIcon(user);
+            }
+        });
+            function updateProfileIcon(user) {
+                const profileImage = document.getElementById('userProfileImage');
+                const defaultIcon = document.getElementById('defaultProfileIcon');
+                const profileText = document.getElementById('profileText');
+
+                if (user && user.photoURL) {
+                    profileImage.src = user.photoURL;
+                    profileImage.style.display = 'block';
+                    defaultIcon.style.display = 'none';
+                    profileText.style.display = 'none';
+                } else {
+                    profileImage.style.display = 'none';
+                    defaultIcon.style.display = 'block';
+                    profileText.style.display = 'block';
+                }
+            }
+
+            // Example usage after user login
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user) {
+                    updateProfileIcon(user);
+                }
+            });
+        </script>
 
         </nav>
 
@@ -11515,6 +11537,21 @@
                 });
             }
 
+              // دالة لتحديث أيقونة التسجيل عند تسجيل الدخول
+              function updateUserProfileIcon(user) {
+                const userProfile = document.getElementById('userProfile');
+                const userProfileImg = userProfile.querySelector('img');
+                userProfileImg.src = user.photoURL || 'default-profile.png'; // استخدم صورة المستخدم أو صورة افتراضية
+                userProfile.classList.remove('d-none');
+            }
+
+            // مثال على كيفية استخدام الدالة عند تسجيل الدخول
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user) {
+                    updateUserProfileIcon(user);
+                }
+            });
+
         </script>
         </main>
         <!-- ربط ملف الجافا سكريبت -->
@@ -11522,9 +11559,9 @@
         <script src="nearby-drivers.js"></script>
         <script src="auth.js"></script>
 
+       
+
 
     </body>
 
 </html>
-
-1234567890-
