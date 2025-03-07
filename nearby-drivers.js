@@ -1,5 +1,3 @@
-// Remove duplicate declarations
-// Ensure no duplicate imports
 // تحديث دالة إنشاء مؤشر السائق على الخريطة
 function createDriverMarker(driver, key) {
     const isApproved = driver.approved === true;
