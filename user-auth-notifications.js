@@ -37,11 +37,7 @@ class UserAuthSystem {
             driverRegistrationForm.addEventListener('submit', (e) => this.handleDriverRegistration(e));
         }
 
-        // زر تسجيل الخروج
-        const logoutButton = document.createElement('button');
-        logoutButton.className = 'nav-link';
        
-        logoutButton.onclick = () => this.handleLogout();
         
         // إضافة زر تسجيل الخروج إلى القائمة
         const toolsContainer = document.querySelector('.tools');
