@@ -786,38 +786,8 @@ class PostsManager {
             <div class="post-comments-shares">
                 <span id="comments-count-${postId}">${postData.comments || 0} تعليق</span>
                 <span>${postData.shares || 0} مشاركة</span>
-                
             </div>
         </div>
-        // تعديل في دالة addPostToDOM في ملف posts.js
-// في مكان إنشاء HTML للمنشور - تحديداً جزء post-options-menu
-
-// قبل إنشاء postElement.innerHTML، أضف هذا الجزء:
-const isAuthor = this.currentUser && postData.authorId === this.currentUser.uid;
-let authorOptions = '';
-if (isAuthor) {
-    authorOptions = `
-        <button class="post-option-item edit-post-btn" data-post-id="${postId}">
-            <i class="fas fa-edit"></i> تعديل المنشور
-        </button>
-        <button class="post-option-item delete-post-btn" data-post-id="${postId}">
-            <i class="fas fa-trash-alt"></i> حذف المنشور
-        </button>
-        <div class="post-option-divider"></div>
-    `;
-}
-
-// ثم في وسط قائمة الخيارات داخل postElement.innerHTML
-// بعد فتح div مع class="post-options-menu"
-// أضف المتغير authorOptions:
-
-<div class="post-options-menu">
-    ${authorOptions}
-    <button class="post-option-item">
-        <i class="fas fa-bookmark"></i> حفظ المنشور
-    </button>
-    <!-- بقية الخيارات -->
-</div>
         
         <div class="post-actions">
             <button class="post-action-btn like-btn" data-post-id="${postId}" onclick="postsManager.toggleLike('${postId}')">
