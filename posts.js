@@ -1,4 +1,4 @@
-// posts.js - وحدة المنشورات لتطبيق تاكسي العراق (نسخة معدلة)
+// posts.js - وحدة المنشورات لتطبيق تاكسي العراق
 
 class PostsManager {
     constructor() {
@@ -14,414 +14,6 @@ class PostsManager {
         this.lastVisiblePost = null;
         this.isLoading = false;
         this.noMorePosts = false;
-    }
-
-    // التحقق ما إذا كان المستخدم قد أعجب بالمنشور
-    async checkIfLiked(postId, userId) {
-        try {
-            const snapshot = await this.likesRef.child(postId).child(userId).once('value');
-            return snapshot.exists();
-        } catch (error) {
-            console.error('Error checking if post is liked:', error);
-            return false;
-        }
-    }
-    
-    // التحقق ما إذا كان المستخدم قد حفظ المنشور
-    async checkIfSaved(postId, userId) {
-        try {
-            const snapshot = await this.savedPostsRef.child(userId).child(postId).once('value');
-            return snapshot.exists();
-        } catch (error) {
-            console.error('Error checking if post is saved:', error);
-            return false;
-        }
-    }
-    
-    // تبديل حالة الإعجاب
-    async toggleLike(postId) {
-        if (!this.currentUser) {
-            Swal.fire({
-                title: 'مطلوب تسجيل الدخول',
-                text: 'يجب عليك تسجيل الدخول أولاً للتفاعل مع المنشورات',
-                icon: 'info',
-                showCancelButton: true,
-                confirmButtonText: 'تسجيل الدخول',
-                cancelButtonText: 'إلغاء'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    openLoginModal();
-                }
-            });
-            return;
-        }
-        
-        try {
-            const userId = this.currentUser.uid;
-            const likeRef = this.likesRef.child(postId).child(userId);
-            const postRef = this.postsRef.child(postId);
-            
-            // تحقق مما إذا كان المستخدم قد أعجب بالفعل
-            const snapshot = await likeRef.once('value');
-            const isLiked = snapshot.exists();
-            
-            // تحديث عدد الإعجابات والمرجع
-            await firebase.database().ref().transaction(function(current) {
-                // إذا لم يكن المنشور موجوداً، لا تفعل شيئاً
-                if (!current || !current.posts || !current.posts[postId]) {
-                    return current;
-                }
-                
-                // تحديث عدد الإعجابات
-                if (isLiked) {
-                    // إزالة الإعجاب
-                    current.posts[postId].likes--;
-                    if (current.likes && current.likes[postId] && current.likes[postId][userId]) {
-                        current.likes[postId][userId] = null;
-                    }
-                } else {
-                    // إضافة إعجاب
-                    current.posts[postId].likes++;
-                    if (!current.likes) current.likes = {};
-                    if (!current.likes[postId]) current.likes[postId] = {};
-                    current.likes[postId][userId] = true;
-                }
-                
-                return current;
-            });
-            
-            // تحديث واجهة المستخدم
-            const likeButton = document.querySelector(`.like-btn[data-post-id="${postId}"]`);
-            const likesCount = document.getElementById(`likes-count-${postId}`);
-            
-            if (likeButton) {
-                if (isLiked) {
-                    likeButton.classList.remove('active');
-                    likeButton.querySelector('i').classList.remove('fas');
-                    likeButton.querySelector('i').classList.add('far');
-                } else {
-                    likeButton.classList.add('active');
-                    likeButton.querySelector('i').classList.remove('far');
-                    likeButton.querySelector('i').classList.add('fas');
-                    
-                    // إضافة تأثير النبض عند الإعجاب
-                    const heart = document.createElement('div');
-                    heart.className = 'heart-animation';
-                    likeButton.appendChild(heart);
-                    setTimeout(() => heart.remove(), 1000);
-                }
-            }
-            
-            if (likesCount) {
-                const currentLikes = parseInt(likesCount.textContent);
-                likesCount.textContent = isLiked ? currentLikes - 1 : currentLikes + 1;
-            }
-            
-        } catch (error) {
-            console.error('Error toggling like:', error);
-            showToast('حدث خطأ أثناء تسجيل الإعجاب', 'error');
-        }
-    }
-    
-    // تبديل حالة الحفظ
-    async toggleSave(postId) {
-        if (!this.currentUser) {
-            Swal.fire({
-                title: 'مطلوب تسجيل الدخول',
-                text: 'يجب عليك تسجيل الدخول أولاً للتفاعل مع المنشورات',
-                icon: 'info',
-                showCancelButton: true,
-                confirmButtonText: 'تسجيل الدخول',
-                cancelButtonText: 'إلغاء'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    openLoginModal();
-                }
-            });
-            return;
-        }
-        
-        try {
-            const userId = this.currentUser.uid;
-            const savedRef = this.savedPostsRef.child(userId).child(postId);
-            
-            // تحقق مما إذا كان المنشور محفوظاً بالفعل
-            const snapshot = await savedRef.once('value');
-            const isSaved = snapshot.exists();
-            
-            if (isSaved) {
-                // إزالة من المحفوظات
-                await savedRef.remove();
-            } else {
-                // إضافة إلى المحفوظات
-                await savedRef.set(true);
-            }
-            
-            // تحديث واجهة المستخدم
-            const saveButton = document.querySelector(`.save-btn[data-post-id="${postId}"]`);
-            
-            if (saveButton) {
-                if (isSaved) {
-                    saveButton.classList.remove('active');
-                    saveButton.querySelector('i').classList.remove('fas');
-                    saveButton.querySelector('i').classList.add('far');
-                    showToast('تمت إزالة المنشور من المحفوظات', 'info');
-                } else {
-                    saveButton.classList.add('active');
-                    saveButton.querySelector('i').classList.remove('far');
-                    saveButton.querySelector('i').classList.add('fas');
-                    showToast('تم حفظ المنشور', 'success');
-                }
-            }
-            
-        } catch (error) {
-            console.error('Error toggling save:', error);
-            showToast('حدث خطأ أثناء حفظ المنشور', 'error');
-        }
-    }
-    
-    // مشاركة المنشور
-    // تحديث عدد المشاركات
-    async updateShareCount(postId) {
-        try {
-            await this.postsRef.child(postId).transaction(post => {
-                if (post) {
-                    post.shares = (post.shares || 0) + 1;
-                }
-                return post;
-            });
-            
-            // تحديث واجهة المستخدم
-            const shareCountElement = document.querySelector(`.post[data-post-id="${postId}"] .post-comments-shares span:last-child`);
-            if (shareCountElement) {
-                const currentShares = parseInt(shareCountElement.textContent);
-                shareCountElement.textContent = `${currentShares + 1} مشاركة`;
-            }
-        } catch (error) {
-            console.error('Error updating share count:', error);
-        }
-    }
-    
-    // مشاركة عبر واتساب
-    shareViaWhatsApp(postId) {
-        const postUrl = `${window.location.origin}/post/${postId}`;
-        window.open(`https://wa.me/?text=${encodeURIComponent(postUrl)}`, '_blank');
-    }
-    
-    // مشاركة عبر فيسبوك
-    shareViaFacebook(postId) {
-        const postUrl = `${window.location.origin}/post/${postId}`;
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`, '_blank');
-    }
-    
-    // مشاركة عبر تويتر
-    shareViaTwitter(postId) {
-        const postUrl = `${window.location.origin}/post/${postId}`;
-        window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(postUrl)}`, '_blank');
-    }
-    
-    // مشاركة عبر تيليجرام
-    shareViaTelegram(postId) {
-        const postUrl = `${window.location.origin}/post/${postId}`;
-        window.open(`https://t.me/share/url?url=${encodeURIComponent(postUrl)}`, '_blank');
-    }
-    
-    // نسخ رابط المنشور
-    copyPostLink(postId) {
-        const postUrl = `${window.location.origin}/post/${postId}`;
-        navigator.clipboard.writeText(postUrl).then(() => {
-            Swal.close();
-            showToast('تم نسخ رابط المنشور', 'success');
-        });
-    }
-    
-    // تحميل التعليقات
-    async loadComments(postId) {
-        const commentsContainer = document.getElementById('commentsContainer');
-        const noComments = document.getElementById('noComments');
-        
-        if (!commentsContainer) return;
-        
-        // إعداد حاوية التعليقات
-        commentsContainer.innerHTML = '<div class="loading-comments"><div class="spinner"></div></div>';
-        commentsContainer.setAttribute('data-post-id', postId);
-        
-        try {
-            // استعلام للحصول على آخر 50 تعليق
-            const snapshot = await this.database.ref(`comments/${postId}`)
-                .orderByChild('timestamp')
-                .limitToLast(50)
-                .once('value');
-                
-            // إزالة مؤشر التحميل
-            commentsContainer.innerHTML = '';
-            
-            // التحقق من وجود تعليقات
-            const commentsExist = snapshot.exists();
-            
-            if (commentsExist) {
-                if (noComments) noComments.style.display = 'none';
-                
-                // تجميع التعليقات
-                const comments = [];
-                snapshot.forEach(childSnapshot => {
-                    comments.push({
-                        id: childSnapshot.key,
-                        ...childSnapshot.val()
-                    });
-                });
-                
-                // عرض التعليقات بترتيب تصاعدي
-                comments.forEach(comment => {
-                    this.addCommentToDOM(comment, commentsContainer);
-                });
-            } else {
-                if (noComments) noComments.style.display = 'block';
-                commentsContainer.appendChild(noComments);
-            }
-            
-        } catch (error) {
-            console.error('Error loading comments:', error);
-            commentsContainer.innerHTML = '<div class="error-loading">حدث خطأ أثناء تحميل التعليقات.</div>';
-        }
-    }
-    
-    // إضافة تعليق إلى DOM
-    addCommentToDOM(comment, container) {
-        const commentElement = document.createElement('div');
-        commentElement.className = 'comment';
-        commentElement.setAttribute('data-comment-id', comment.id);
-        
-        // تنسيق وقت التعليق
-        const commentTime = this.formatPostTime(comment.timestamp);
-        
-        // إنشاء HTML للتعليق
-        commentElement.innerHTML = `
-        <img src="${comment.authorImage || 'https://firebasestorage.googleapis.com/v0/b/messageemeapp.appspot.com/o/user-photos%2F1741376568952_default-avatar.png?alt=media&token=ad672ccf-c8e1-4788-a252-52de6c3ceedd'}" alt="صورة المستخدم" class="comment-avatar">
-        <div class="comment-content">
-            <div class="comment-bubble">
-                <h6>${comment.authorName}</h6>
-                <p>${this.formatPostText(comment.text)}</p>
-            </div>
-            <div class="comment-actions">
-                <button class="comment-action like-comment" data-comment-id="${comment.id}">إعجاب</button>
-                <button class="comment-action reply-comment" data-comment-id="${comment.id}">رد</button>
-                <small class="comment-time">${commentTime}</small>
-            </div>
-        </div>
-        `;
-        
-        // إضافة التعليق إلى الحاوية
-        container.appendChild(commentElement);
-    }
-    
-    // إضافة تعليق جديد
-    async addComment(postId, commentText) {
-        if (!this.currentUser) {
-            showToast('يجب تسجيل الدخول للتعليق', 'error');
-            return;
-        }
-        
-        if (!commentText || commentText.length > this.maxCommentLength) {
-            showToast(`يجب أن يكون التعليق بين 1 و ${this.maxCommentLength} حرف`, 'warning');
-            return;
-        }
-        
-        try {
-            // إنشاء بيانات التعليق
-            const commentData = {
-                text: commentText,
-                authorId: this.currentUser.uid,
-                authorName: this.currentUser.fullName || this.currentUser.name || 'مستخدم',
-                authorImage: this.currentUser.photoUrl || null,
-                authorRole: this.currentUser.role || 'user', // إضافة دور المستخدم
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
-                likes: 0
-            };
-            
-            // إضافة التعليق إلى قاعدة البيانات
-            const newCommentRef = this.database.ref(`comments/${postId}`).push();
-            await newCommentRef.set(commentData);
-            
-            // تحديث عدد التعليقات في المنشور
-            await this.postsRef.child(postId).transaction(post => {
-                if (post) {
-                    post.comments = (post.comments || 0) + 1;
-                }
-                return post;
-            });
-            
-            // تحديث واجهة المستخدم
-            commentData.id = newCommentRef.key;
-            
-            // إضافة التعليق إلى DOM
-            const commentsContainer = document.getElementById('commentsContainer');
-            const noComments = document.getElementById('noComments');
-            
-            if (commentsContainer) {
-                if (noComments && noComments.style.display !== 'none') {
-                    noComments.style.display = 'none';
-                }
-                
-                this.addCommentToDOM(commentData, commentsContainer);
-                
-                // تمرير للأسفل لعرض التعليق الجديد
-                commentsContainer.scrollTop = commentsContainer.scrollHeight;
-            }
-            
-            // تحديث عدد التعليقات في المنشور
-            const commentsCount = document.getElementById(`comments-count-${postId}`);
-            if (commentsCount) {
-                const currentComments = parseInt(commentsCount.textContent);
-                commentsCount.textContent = `${currentComments + 1} تعليق`;
-            }
-            
-        } catch (error) {
-            console.error('Error adding comment:', error);
-            showToast('حدث خطأ أثناء إضافة التعليق', 'error');
-        }
-    }
-}
-
-// إنشاء نسخة عالمية من مدير المنشورات
-window.postsManager = new PostsManager();
-
-// تهيئة مدير المنشورات عند تحميل الصفحة
-document.addEventListener('DOMContentLoaded', () => {
-    window.postsManager.init();
-});
-        Swal.fire({
-            title: 'مشاركة المنشور',
-            html: `
-            <div class="share-options">
-                <button class="share-option" onclick="postsManager.shareViaWhatsApp('${postId}')">
-                    <i class="fab fa-whatsapp"></i>
-                    <span>WhatsApp</span>
-                </button>
-                <button class="share-option" onclick="postsManager.shareViaFacebook('${postId}')">
-                    <i class="fab fa-facebook"></i>
-                    <span>Facebook</span>
-                </button>
-                <button class="share-option" onclick="postsManager.shareViaTwitter('${postId}')">
-                    <i class="fab fa-twitter"></i>
-                    <span>Twitter</span>
-                </button>
-                <button class="share-option" onclick="postsManager.shareViaTelegram('${postId}')">
-                    <i class="fab fa-telegram"></i>
-                    <span>Telegram</span>
-                </button>
-                <button class="share-option" onclick="postsManager.copyPostLink('${postId}')">
-                    <i class="fas fa-link"></i>
-                    <span>نسخ الرابط</span>
-                </button>
-            </div>
-            `,
-            showConfirmButton: false,
-            showCloseButton: true
-        });
-        
-        // تحديث عدد المشاركات
-        this.updateShareCount(postId);
     }
 
     // تهيئة مدير المنشورات
@@ -450,241 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         this.currentUser = { ...userData, uid: user.uid };
                         localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
                     }
-            
-        } catch (error) {
-            console.error('Error loading more posts:', error);
-            showToast('حدث خطأ أثناء تحميل المزيد من المنشورات', 'error');
-        } finally {
-            this.isLoading = false;
-        }
-    }
-
-    // إضافة منشور إلى DOM
-    addPostToDOM(postId, postData) {
-        const postsContainer = document.getElementById('postsContainer');
-        if (!postsContainer) return;
-        
-        // إنشاء عنصر المنشور
-        const postElement = document.createElement('div');
-        postElement.className = 'post';
-        postElement.setAttribute('data-post-id', postId);
-        
-        // تنسيق الوقت
-        const postTime = this.formatPostTime(postData.timestamp);
-        
-        // التحقق من حالة الإعجاب
-        let isLiked = false;
-        let isSaved = false;
-        
-        if (this.currentUser) {
-            // يجب استدعاء هذه الدوال بشكل غير متزامن لتحديث واجهة المستخدم لاحقاً
-            this.checkIfLiked(postId, this.currentUser.uid).then(result => {
-                isLiked = result;
-                const likeButton = postElement.querySelector('.like-btn');
-                if (likeButton) {
-                    if (isLiked) {
-                        likeButton.classList.add('active');
-                        likeButton.querySelector('i').classList.remove('far');
-                        likeButton.querySelector('i').classList.add('fas');
-                    }
-                }
-            });
-            
-            this.checkIfSaved(postId, this.currentUser.uid).then(result => {
-                isSaved = result;
-                const saveButton = postElement.querySelector('.save-btn');
-                if (saveButton) {
-                    if (isSaved) {
-                        saveButton.classList.add('active');
-                        saveButton.querySelector('i').classList.remove('far');
-                        saveButton.querySelector('i').classList.add('fas');
-                    }
-                }
-            });
-        }
-        
-        // إنشاء محتوى المنشور
-        let mediaContent = '';
-        if (postData.mediaType && postData.mediaUrl) {
-            if (postData.mediaType === 'image') {
-                mediaContent = `
-                <div class="post-media">
-                    <img src="${postData.mediaUrl}" alt="صورة المنشور" class="post-image">
-                </div>
-                `;
-            } else if (postData.mediaType === 'video') {
-                mediaContent = `
-                <div class="post-media">
-                    <video src="${postData.mediaUrl}" controls class="post-video"></video>
-                </div>
-                `;
-            }
-        }
-        
-        // إضافة شارة السائق
-        const driverBadge = postData.authorRole === 'driver' ? 
-            `<span class="driver-badge"><i class="fas fa-car"></i> سائق</span>` : '';
-        
-        // إضافة معلومات المركبة إذا كان السائق ولديه معلومات مركبة
-        let vehicleInfo = '';
-        if (postData.authorRole === 'driver' && postData.vehicleInfo) {
-            vehicleInfo = `
-            <div class="vehicle-info">
-                <i class="fas fa-car-side"></i>
-                <span>${postData.vehicleInfo.model || ''} ${postData.vehicleInfo.year || ''}</span>
-                ${postData.vehicleInfo.plate ? `<span>رقم اللوحة: ${postData.vehicleInfo.plate}</span>` : ''}
-            </div>
-            `;
-        }
-        
-        // إنشاء HTML للمنشور
-        postElement.innerHTML = `
-        <div class="post-header">
-            <div class="post-user">
-                <img src="${postData.authorImage || 'https://firebasestorage.googleapis.com/v0/b/messageemeapp.appspot.com/o/user-photos%2F1741376568952_default-avatar.png?alt=media&token=ad672ccf-c8e1-4788-a252-52de6c3ceedd'}" alt="صورة المستخدم" class="post-avatar">
-                <div class="post-user-info">
-                    <h6>${postData.authorName} ${driverBadge}</h6>
-                    <small>${postTime} <i class="fas fa-globe-asia fa-sm"></i></small>
-                    ${vehicleInfo}
-                </div>
-            </div>
-            <div class="post-options">
-                <button class="post-options-btn">
-                    <i class="fas fa-ellipsis-h"></i>
-                </button>
-                <div class="post-options-menu">
-                    <button class="post-option-item">
-                        <i class="fas fa-bookmark"></i> حفظ المنشور
-                    </button>
-                    <button class="post-option-item">
-                        <i class="fas fa-bell-slash"></i> إيقاف التنبيهات
-                    </button>
-                    <button class="post-option-item">
-                        <i class="fas fa-flag"></i> الإبلاغ عن المنشور
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <div class="post-content">
-            ${postData.text ? `<p class="post-text">${this.formatPostText(postData.text)}</p>` : ''}
-            ${mediaContent}
-        </div>
-        
-        <div class="post-stats">
-            <div class="post-likes">
-                <i class="fas fa-heart"></i>
-                <span id="likes-count-${postId}">${postData.likes || 0}</span>
-            </div>
-            <div class="post-comments-shares">
-                <span id="comments-count-${postId}">${postData.comments || 0} تعليق</span>
-                <span>${postData.shares || 0} مشاركة</span>
-            </div>
-        </div>
-        
-        <div class="post-actions">
-            <button class="post-action-btn like-btn" data-post-id="${postId}" onclick="postsManager.toggleLike('${postId}')">
-                <i class="far fa-heart"></i>
-                <span>إعجاب</span>
-            </button>
-            <button class="post-action-btn comment-btn" data-post-id="${postId}" data-bs-toggle="modal" data-bs-target="#commentsModal">
-                <i class="far fa-comment"></i>
-                <span>تعليق</span>
-            </button>
-            <button class="post-action-btn share-btn" data-post-id="${postId}" onclick="postsManager.sharePost('${postId}')">
-                <i class="far fa-share-square"></i>
-                <span>مشاركة</span>
-            </button>
-            <button class="post-action-btn save-btn" data-post-id="${postId}" onclick="postsManager.toggleSave('${postId}')">
-                <i class="far fa-bookmark"></i>
-                <span>حفظ</span>
-            </button>
-        </div>
-        `;
-        
-        // إضافة المنشور إلى الحاوية
-        const loadingEl = postsContainer.querySelector('.loading-posts');
-        if (loadingEl) {
-            postsContainer.insertBefore(postElement, loadingEl);
-        } else {
-            postsContainer.appendChild(postElement);
-        }
-        
-        // إضافة معالج النقر لخيارات المنشور
-        const optionsBtn = postElement.querySelector('.post-options-btn');
-        const optionsMenu = postElement.querySelector('.post-options-menu');
-        
-        if (optionsBtn && optionsMenu) {
-            optionsBtn.addEventListener('click', (event) => {
-                event.stopPropagation();
-                optionsMenu.classList.toggle('active');
-            });
-            
-            document.addEventListener('click', (event) => {
-                if (!optionsBtn.contains(event.target) && !optionsMenu.contains(event.target)) {
-                    optionsMenu.classList.remove('active');
-                }
-            });
-        }
-    }
-    
-    // تنسيق نص المنشور
-    formatPostText(text) {
-        // تحويل الروابط إلى روابط قابلة للنقر
-        let formattedText = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
-        
-        // تحويل الهاشتاغات إلى روابط
-        formattedText = formattedText.replace(/#(\w+)/g, '<a href="#" class="hashtag">#$1</a>');
-        
-        // تحويل المنشنات إلى روابط
-        formattedText = formattedText.replace(/@(\w+)/g, '<a href="#" class="mention">@$1</a>');
-        
-        // تحويل العودات السطرية إلى <br>
-        formattedText = formattedText.replace(/\n/g, '<br>');
-        
-        return formattedText;
-    }
-    
-    // تنسيق وقت المنشور
-    formatPostTime(timestamp) {
-        if (!timestamp) return 'الآن';
-        
-        const now = Date.now();
-        const diff = now - timestamp;
-        
-        // أقل من دقيقة
-        if (diff < 60 * 1000) {
-            return 'الآن';
-        }
-        
-        // أقل من ساعة
-        if (diff < 60 * 60 * 1000) {
-            const minutes = Math.floor(diff / (60 * 1000));
-            return `منذ ${minutes} دقيقة${minutes > 2 ? '' : ''}`;
-        }
-        
-        // أقل من يوم
-        if (diff < 24 * 60 * 60 * 1000) {
-            const hours = Math.floor(diff / (60 * 60 * 1000));
-            return `منذ ${hours} ساعة${hours > 2 ? 'ات' : ''}`;
-        }
-        
-        // أقل من أسبوع
-        if (diff < 7 * 24 * 60 * 60 * 1000) {
-            const days = Math.floor(diff / (24 * 60 * 60 * 1000));
-            return `منذ ${days} يوم${days > 1 ? '' : ''}`;
-        }
-        
-        // تاريخ كامل
-        const date = new Date(timestamp);
-        return date.toLocaleDateString('ar-IQ', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    }
                     this.updatePostCreatorVisibility();
                 });
             } else {
@@ -693,11 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.updatePostCreatorVisibility();
             }
         });
-    }
-
-    // التحقق مما إذا كان المستخدم سائقًا
-    isDriver() {
-        return this.currentUser && this.currentUser.role === 'driver';
     }
 
     // تهيئة مكون إنشاء المنشورات
@@ -758,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <img src="${this.currentUser?.photoUrl || 'https://firebasestorage.googleapis.com/v0/b/messageemeapp.appspot.com/o/user-photos%2F1741376568952_default-avatar.png?alt=media&token=ad672ccf-c8e1-4788-a252-52de6c3ceedd'}" 
                                      alt="صورة المستخدم" class="create-post-avatar">
                                 <div class="create-post-user-info">
-                                    <h6>${this.currentUser?.fullName || this.currentUser?.name || 'سائق'}</h6>
+                                    <h6>${this.currentUser?.fullName || this.currentUser?.name || 'مستخدم'}</h6>
                                     <span class="post-privacy">
                                         <i class="fas fa-globe-asia"></i> عام
                                     </span>
@@ -958,8 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updatePostCreatorVisibility() {
         const postCreator = document.querySelector('.post-creator');
         if (postCreator) {
-            // إظهار أو إخفاء منشئ المنشورات بناءً على ما إذا كان المستخدم سائقًا
-            if (this.isDriver()) {
+            if (this.currentUser) {
                 postCreator.style.display = 'block';
                 
                 // تحديث معلومات المستخدم في منشئ المنشورات
@@ -983,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             if (userName) {
-                userName.textContent = this.currentUser.fullName || this.currentUser.name || 'سائق';
+                userName.textContent = this.currentUser.fullName || this.currentUser.name || 'مستخدم';
             }
         }
         
@@ -1008,17 +359,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (result.isConfirmed) {
                     openLoginModal();
                 }
-            });
-            return;
-        }
-        
-        // التحقق مما إذا كان المستخدم سائقًا
-        if (!this.isDriver()) {
-            Swal.fire({
-                title: 'غير مسموح',
-                text: 'يُسمح فقط للسائقين بإنشاء منشورات جديدة',
-                icon: 'warning',
-                confirmButtonText: 'حسنًا'
             });
             return;
         }
@@ -1130,12 +470,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // التحقق مما إذا كان المستخدم سائقًا
-        if (!this.isDriver()) {
-            showToast('يُسمح فقط للسائقين بإنشاء منشورات', 'error');
-            return;
-        }
-        
         try {
             const textEl = document.getElementById('postText');
             const mediaInput = document.getElementById('postMediaInput');
@@ -1162,16 +496,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const postData = {
                 text: text,
                 authorId: this.currentUser.uid,
-                authorName: this.currentUser.fullName || this.currentUser.name || 'سائق',
+                authorName: this.currentUser.fullName || this.currentUser.name || 'مستخدم',
                 authorImage: this.currentUser.photoUrl || null,
-                authorRole: 'driver', // إضافة دور السائق للمنشور
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
                 likes: 0,
                 comments: 0,
                 shares: 0,
                 mediaType: null,
-                mediaUrl: null,
-                vehicleInfo: this.currentUser.vehicleInfo || null // إضافة معلومات المركبة إذا كانت متوفرة
+                mediaUrl: null
             };
             
             // إذا كان هناك ملف وسائط، قم برفعه
@@ -1342,8 +674,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 noMorePostsEl.innerHTML = '<p>لا توجد منشورات أخرى</p>';
                 postsContainer.appendChild(noMorePostsEl);
             }
-            
-          
             
         } catch (error) {
             console.error('Error loading more posts:', error);
