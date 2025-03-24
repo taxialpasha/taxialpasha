@@ -254,19 +254,252 @@ class StoriesSystem {
         }
     }
     
-    // الحصول على المستخدم الحالي
-    getCurrentUser() {
-        try {
-            const userJson = localStorage.getItem('currentUser');
-            if (userJson) {
-                return JSON.parse(userJson);
+    // تعديل في دالة getCurrentUser لتمييز السائقين عن المستخدمين العاديين
+getCurrentUser() {
+    try {
+        const userJson = localStorage.getItem('currentUser');
+        if (userJson) {
+            const user = JSON.parse(userJson);
+            // إضافة حقل لتحديد نوع المستخدم
+            return {
+                ...user,
+                isDriver: user.userType === 'driver' || user.role === 'driver' || user.type === 'driver'
+            };
+        }
+        return null;
+    } catch (error) {
+        console.error('خطأ في قراءة بيانات المستخدم:', error);
+        return null;
+    }
+}
+
+// تعديل في دالة openAddStoryModal للتحقق من أن المستخدم سائق
+openAddStoryModal() {
+    // التحقق مما إذا كان المستخدم مسجل الدخول
+    const currentUser = this.getCurrentUser();
+    
+    if (!currentUser) {
+        // إذا لم يكن المستخدم مسجل الدخول، عرض نافذة تسجيل الدخول
+        this.showLoginPrompt();
+        return;
+    }
+    
+    // التحقق من أن المستخدم سائق
+    if (!currentUser.isDriver) {
+        // إذا لم يكن المستخدم سائق، عرض رسالة إعلامية
+        this.showDriverOnlyMessage();
+        return;
+    }
+    
+    // إعادة تعيين المودال
+    this.resetAddStoryModal();
+    
+    // إظهار المودال
+    this.addStoryModal.classList.add('active');
+    document.body.style.overflow = 'hidden'; // منع التمرير في الصفحة الخلفية
+}
+
+// دالة جديدة لعرض رسالة أن القصص للسائقين فقط
+showDriverOnlyMessage() {
+    Swal.fire({
+        title: 'قصص للسائقين فقط',
+        text: 'عذراً، ميزة نشر القصص متاحة للسائقين فقط. يمكنك تسجيل حساب كسائق للاستفادة من هذه الميزة.',
+        icon: 'info',
+        confirmButtonText: 'حسناً',
+        background: '#1a1a1a',
+        color: '#fff',
+        confirmButtonColor: '#FFD700'
+    });
+}
+
+// تعديل في دالة renderStories لإخفاء أو إظهار زر إضافة القصة
+renderStories() {
+    // التحقق من وجود قصص
+    if (this.userStories.length === 0) {
+        this.showNoStoriesMessage();
+        return;
+    }
+    
+    // تفريغ حاوية القصص (ما عدا زر الإضافة)
+    const allStoryItems = Array.from(this.storiesContainer.querySelectorAll('.story-item:not(.add-story)'));
+    allStoryItems.forEach(item => item.remove());
+    
+    // الحصول على المستخدم الحالي من التخزين المحلي
+    const currentUser = this.getCurrentUser();
+    
+    // إضافة القصص للواجهة
+    this.userStories.forEach(userStory => {
+        const storyItem = document.createElement('div');
+        storyItem.className = 'story-item';
+        storyItem.setAttribute('data-user-id', userStory.user.id);
+        
+        // التحقق مما إذا كانت قصص المستخدم مشاهدة بالكامل
+        const allViewed = this.checkIfAllStoriesViewed(userStory.stories);
+        if (!allViewed) {
+            storyItem.classList.add('has-new');
+        }
+        
+        storyItem.innerHTML = `
+            <div class="story-circle ${allViewed ? 'viewed' : ''}">
+                <img src="${userStory.user.photoURL || 'https://firebasestorage.googleapis.com/v0/b/messageemeapp.appspot.com/o/user-photos%2F1741376568952_default-avatar.png?alt=media&token=ad672ccf-c8e1-4788-a252-52de6c3ceedd'}" alt="${userStory.user.name}" class="story-img">
+                <div class="driver-badge" title="سائق">
+                    <i class="fas fa-car"></i>
+                </div>
+            </div>
+            <span class="story-username">${userStory.user.name}</span>
+        `;
+        
+        // إضافة مستمع لفتح القصص عند النقر
+        storyItem.addEventListener('click', () => {
+            this.openStory(userStory.user.id);
+        });
+        
+        // إضافة القصة إلى الحاوية (بعد زر الإضافة)
+        if (this.addStoryBtn) {
+            this.addStoryBtn.insertAdjacentElement('afterend', storyItem);
+        } else {
+            this.storiesContainer.appendChild(storyItem);
+        }
+    });
+    
+    // إخفاء/إظهار زر الإضافة بناءً على نوع المستخدم
+    if (this.addStoryBtn) {
+        if (!currentUser) {
+            // إخفاء زر الإضافة إذا لم يكن المستخدم مسجل الدخول
+            this.addStoryBtn.style.display = 'none';
+        } else if (!currentUser.isDriver) {
+            // إخفاء زر الإضافة إذا لم يكن المستخدم سائق
+            this.addStoryBtn.style.display = 'none';
+        } else {
+            // إظهار زر الإضافة إذا كان المستخدم سائق
+            this.addStoryBtn.style.display = 'flex';
+            
+            // تعديل عنوان زر الإضافة ليكون أكثر وضوحاً للسائقين
+            const usernameElement = this.addStoryBtn.querySelector('.story-username');
+            if (usernameElement) {
+                usernameElement.textContent = 'أضف قصتك';
             }
-            return null;
-        } catch (error) {
-            console.error('خطأ في قراءة بيانات المستخدم:', error);
-            return null;
         }
     }
+    
+    // إضافة شرح إرشادي إذا كان المستخدم غير مسجل الدخول أو ليس سائق
+    if (!currentUser || !currentUser.isDriver) {
+        this.addViewerOnlyExplanation();
+    }
+}
+
+// دالة جديدة لإضافة شرح "المشاهدة فقط"
+addViewerOnlyExplanation() {
+    // التحقق من وجود الشرح مسبقاً
+    if (document.querySelector('.stories-view-only-notice')) {
+        return;
+    }
+    
+    // إنشاء عنصر الشرح
+    const explanation = document.createElement('div');
+    explanation.className = 'stories-view-only-notice';
+    explanation.innerHTML = `
+        <i class="fas fa-info-circle"></i>
+        <span>يمكنك مشاهدة قصص السائقين فقط. نشر القصص متاح للسائقين.</span>
+    `;
+    
+    // إضافة إلى حاوية القصص
+    this.storiesContainer.appendChild(explanation);
+}
+
+// تعديل في دالة uploadStory للتحقق من أن المستخدم سائق
+async uploadStory() {
+    if (!this.selectedMedia) return;
+    
+    // التحقق من المستخدم الحالي
+    const currentUser = this.getCurrentUser();
+    if (!currentUser) {
+        this.showLoginPrompt();
+        return;
+    }
+    
+    // التحقق من أن المستخدم سائق
+    if (!currentUser.isDriver) {
+        this.showDriverOnlyMessage();
+        return;
+    }
+    
+    try {
+        // إظهار مؤشر التحميل
+        Swal.fire({
+            title: 'جاري رفع القصة...',
+            text: 'يرجى الانتظار',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
+            background: '#1a1a1a',
+            color: '#fff'
+        });
+        
+        // رفع الملف إلى Firebase Storage
+        const storageRef = firebase.storage().ref();
+        const mediaId = Date.now().toString();
+        const fileRef = storageRef.child(`stories/${currentUser.uid}/${mediaId}_${this.selectedMedia.file.name}`);
+        
+        // رفع الملف
+        const uploadTask = await fileRef.put(this.selectedMedia.file);
+        
+        // الحصول على URL الملف
+        const mediaUrl = await uploadTask.ref.getDownloadURL();
+        
+        // إنشاء بيانات القصة
+        const storyData = {
+            userId: currentUser.uid,
+            userName: currentUser.fullName || currentUser.name || 'سائق',
+            userPhoto: currentUser.photoUrl || currentUser.imageUrl || null,
+            mediaType: this.selectedMedia.type,
+            mediaUrl: mediaUrl,
+            timestamp: firebase.database.ServerValue.TIMESTAMP,
+            isDriverStory: true  // تعليم القصة كقصة سائق
+        };
+        
+        // حفظ البيانات في Firebase Database
+        const newStoryRef = firebase.database().ref('stories').push();
+        await newStoryRef.set(storyData);
+        
+        // إغلاق مؤشر التحميل
+        Swal.close();
+        
+        // إظهار رسالة نجاح
+        Swal.fire({
+            title: 'تم بنجاح!',
+            text: 'تمت إضافة قصتك بنجاح وستظهر للمستخدمين',
+            icon: 'success',
+            confirmButtonText: 'حسناً',
+            background: '#1a1a1a',
+            color: '#fff',
+            confirmButtonColor: '#FFD700'
+        });
+        
+        // إغلاق مودال الإضافة
+        this.closeAddStoryModal();
+        
+        // إعادة تحميل القصص
+        this.loadStories();
+    } catch (error) {
+        console.error('خطأ في رفع القصة:', error);
+        
+        // إغلاق مؤشر التحميل
+        Swal.close();
+        
+        // إظهار رسالة خطأ
+        Swal.fire({
+            title: 'خطأ',
+            text: 'حدث خطأ أثناء رفع القصة. يرجى المحاولة مرة أخرى.',
+            icon: 'error',
+            confirmButtonText: 'حسناً',
+            background: '#1a1a1a',
+            color: '#fff',
+            confirmButtonColor: '#FFD700'
+        });
+    }
+}
     
     // التحقق مما إذا كانت جميع قصص المستخدم مشاهدة
     checkIfAllStoriesViewed(stories) {
