@@ -24,10 +24,10 @@ class PostsManager {
             this.currentUser = JSON.parse(userData);
         }
 
-        // تهيئة عنصر واجهة منشئ المنشورات
+        // تهيئة عنصر واجهة منشئ المنشورات فقط إذا كان المستخدم سائق
         this.initPostCreator();
         
-        // تحميل المنشورات الأولية
+        // تحميل المنشورات الأولية (يمكن للجميع مشاهدة المنشورات)
         this.loadInitialPosts();
         
         // إضافة مستمع للتمرير لتحميل المزيد من المنشورات
@@ -41,8 +41,22 @@ class PostsManager {
                     if (userData) {
                         this.currentUser = { ...userData, uid: user.uid };
                         localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+                        
+                        // تحديث حالة ظهور منشئ المنشورات بناءً على نوع المستخدم
+                        this.updatePostCreatorVisibility();
                     }
-                    this.updatePostCreatorVisibility();
+                });
+                
+                // التحقق من وجود المستخدم في جدول السائقين
+                this.database.ref(`drivers`).orderByChild('uid').equalTo(user.uid).once('value').then(snapshot => {
+                    if (snapshot.exists()) {
+                        // إذا وجدنا المستخدم في جدول السائقين، نعين نوع المستخدم إلى سائق
+                        this.currentUser = { ...this.currentUser, userType: 'driver', role: 'driver' };
+                        localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+                        
+                        // تحديث حالة ظهور منشئ المنشورات
+                        this.updatePostCreatorVisibility();
+                    }
                 });
             } else {
                 this.currentUser = null;
@@ -310,15 +324,17 @@ class PostsManager {
     updatePostCreatorVisibility() {
         const postCreator = document.querySelector('.post-creator');
         if (postCreator) {
-            if (this.currentUser) {
+            // التحقق من وجود المستخدم ومن أنه سائق
+            if (this.currentUser && (this.currentUser.userType === 'driver' || this.currentUser.role === 'driver')) {
                 postCreator.style.display = 'block';
                 
                 // تحديث معلومات المستخدم في منشئ المنشورات
                 const avatar = postCreator.querySelector('.post-creator-avatar');
                 if (avatar) {
-                    avatar.src = this.currentUser.photoUrl || 'https://firebasestorage.googleapis.com/v0/b/messageemeapp.appspot.com/o/user-photos%2F1741376568952_default-avatar.png?alt=media&token=ad672ccf-c8e1-4788-a252-52de6c3ceedd';
+                    avatar.src = this.currentUser.photoUrl || this.currentUser.imageUrl || 'https://firebasestorage.googleapis.com/v0/b/messageemeapp.appspot.com/o/user-photos%2F1741376568952_default-avatar.png?alt=media&token=ad672ccf-c8e1-4788-a252-52de6c3ceedd';
                 }
             } else {
+                // إخفاء منشئ المنشورات إذا لم يكن المستخدم سائق
                 postCreator.style.display = 'none';
             }
         }
@@ -330,7 +346,7 @@ class PostsManager {
             const userName = createPostUser.querySelector('h6');
             
             if (avatar) {
-                avatar.src = this.currentUser.photoUrl || 'https://firebasestorage.googleapis.com/v0/b/messageemeapp.appspot.com/o/user-photos%2F1741376568952_default-avatar.png?alt=media&token=ad672ccf-c8e1-4788-a252-52de6c3ceedd';
+                avatar.src = this.currentUser.photoUrl || this.currentUser.imageUrl || 'https://firebasestorage.googleapis.com/v0/b/messageemeapp.appspot.com/o/user-photos%2F1741376568952_default-avatar.png?alt=media&token=ad672ccf-c8e1-4788-a252-52de6c3ceedd';
             }
             
             if (userName) {
@@ -341,12 +357,13 @@ class PostsManager {
         // تحديث أيقونة التعليق
         const commentAvatar = document.querySelector('.comment-avatar');
         if (commentAvatar && this.currentUser) {
-            commentAvatar.src = this.currentUser.photoUrl || 'https://firebasestorage.googleapis.com/v0/b/messageemeapp.appspot.com/o/user-photos%2F1741376568952_default-avatar.png?alt=media&token=ad672ccf-c8e1-4788-a252-52de6c3ceedd';
+            commentAvatar.src = this.currentUser.photoUrl || this.currentUser.imageUrl || 'https://firebasestorage.googleapis.com/v0/b/messageemeapp.appspot.com/o/user-photos%2F1741376568952_default-avatar.png?alt=media&token=ad672ccf-c8e1-4788-a252-52de6c3ceedd';
         }
     }
 
     // فتح منشئ المنشورات
     openPostCreator(mediaType = null) {
+        // التحقق من وجود المستخدم وأنه سائق
         if (!this.currentUser) {
             Swal.fire({
                 title: 'مطلوب تسجيل الدخول',
@@ -359,6 +376,17 @@ class PostsManager {
                 if (result.isConfirmed) {
                     openLoginModal();
                 }
+            });
+            return;
+        }
+        
+        // التحقق من نوع المستخدم
+        if (this.currentUser.userType !== 'driver' && this.currentUser.role !== 'driver') {
+            Swal.fire({
+                title: 'غير مسموح',
+                text: 'عذراً، فقط السائقين يمكنهم نشر المنشورات',
+                icon: 'warning',
+                confirmButtonText: 'حسناً'
             });
             return;
         }
@@ -465,8 +493,15 @@ class PostsManager {
 
     // إنشاء منشور جديد
     async createPost() {
+        // التحقق من وجود المستخدم وأنه سائق
         if (!this.currentUser) {
             showToast('يجب تسجيل الدخول لنشر منشور', 'error');
+            return;
+        }
+        
+        // التحقق من نوع المستخدم
+        if (this.currentUser.userType !== 'driver' && this.currentUser.role !== 'driver') {
+            showToast('عذراً، فقط السائقين يمكنهم نشر المنشورات', 'error');
             return;
         }
         
@@ -497,13 +532,15 @@ class PostsManager {
                 text: text,
                 authorId: this.currentUser.uid,
                 authorName: this.currentUser.fullName || this.currentUser.name || 'مستخدم',
-                authorImage: this.currentUser.photoUrl || null,
+                authorImage: this.currentUser.photoUrl || this.currentUser.imageUrl || null,
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
                 likes: 0,
                 comments: 0,
                 shares: 0,
                 mediaType: null,
-                mediaUrl: null
+                mediaUrl: null,
+                // إضافة علامة توضح أن المنشور من سائق
+                fromDriver: true
             };
             
             // إذا كان هناك ملف وسائط، قم برفعه
@@ -745,13 +782,19 @@ class PostsManager {
             }
         }
         
+        // إضافة شارة "سائق" إلى رأس المنشور
+        const driverBadge = postData.fromDriver ? 
+            `<span class="driver-badge">
+                <i class="fas fa-taxi"></i> سائق
+            </span>` : '';
+        
         // إنشاء HTML للمنشور
         postElement.innerHTML = `
         <div class="post-header">
             <div class="post-user">
                 <img src="${postData.authorImage || 'https://firebasestorage.googleapis.com/v0/b/messageemeapp.appspot.com/o/user-photos%2F1741376568952_default-avatar.png?alt=media&token=ad672ccf-c8e1-4788-a252-52de6c3ceedd'}" alt="صورة المستخدم" class="post-avatar">
                 <div class="post-user-info">
-                    <h6>${postData.authorName}</h6>
+                    <h6>${postData.authorName} ${driverBadge}</h6>
                     <small>${postTime} <i class="fas fa-globe-asia fa-sm"></i></small>
                 </div>
             </div>
