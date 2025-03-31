@@ -739,3 +739,20 @@
         font-size: 0.7rem;
     }
 }
+
+/* ===== أنماط الإشعارات النسبية ===== */
+.notification-toast {
+    /* استخدام وحدات نسبية لتناسب الشاشات المختلفة */
+    padding: var(--spacing-medium);
+    border-radius: 0.5rem;
+    max-width: 90%;
+    font-size: 1rem;
+}
+
+/* تكييف للأجهزة الصغيرة */
+@media (max-width: 768px) {
+    .notification-toast {
+        font-size: 0.9rem;
+        padding: var(--spacing-small);
+    }
+}

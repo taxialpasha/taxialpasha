@@ -3691,6 +3691,92 @@ body {
 
 /* ...existing code... */
 
+/* إعدادات تكييف الواجهة */
+@media (max-width: 768px) {
+    :root {
+        --border-radius-sm: 4px;
+        --border-radius-md: 8px;
+        --border-radius-lg: 12px;
+        --spacing-xs: 0.2rem;
+        --spacing-sm: 0.4rem;
+        --spacing-md: 0.8rem;
+        --spacing-lg: 1.2rem;
+    }
+    
+    .app-header {
+        height: 45px;
+        padding: 0 var(--spacing-sm);
+        font-size: 0.9rem;
+    }
+    
+    .app-logo {
+        font-size: 1rem;
+    }
+    
+    .tools .nav-link {
+        font-size: 0.9rem;
+    }
+    
+    .driver-card {
+        margin-bottom: var(--spacing-sm);
+        border-radius: var(--border-radius-md);
+        padding: var(--spacing-sm);
+    }
+    
+    .modal-content {
+        padding: var(--spacing-sm);
+        border-radius: var(--border-radius-md);
+    }
+    
+    .notification-toast {
+        font-size: 0.9rem;
+        padding: var(--spacing-sm);
+    }
+    
+    /* ضبط نافذة الدردشة لتناسب العرض */
+    .chat-window {
+        width: 100%;
+        height: calc(100vh - 100px);
+        font-size: 0.9rem;
+    }
+    
+    /* تعديل عرض الشريط الجانبي */
+    .side-nav {
+        width: 70%;
+        font-size: 1rem;
+    }
+    
+    /* ضبط أحجام الأيقونات */
+    .app-logo i,
+    .tools .nav-link i,
+    .user-profile-btn img {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1200px) {
+    .app-header {
+        height: 50px;
+        padding: 0 var(--spacing-md);
+    }
+    
+    .driver-card {
+        margin-bottom: var(--spacing-md);
+        border-radius: var(--border-radius-lg);
+    }
+    
+    .chat-window {
+        font-size: 1rem;
+    }
+    
+    .side-nav {
+        width: 250px;
+    }
+}
+
+/* ...existing code... */
+
 .toggle-availability-btn {
     background-color: #333;
     color: #FFD700;

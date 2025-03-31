@@ -1,3 +1,22 @@
+:root {
+    /* متغيرات قياسية للنصوص والمسافات */
+    --base-font-size: 16px;
+    --scale-factor: 1.2;
+    --spacing-small: 0.5rem;
+    --spacing-medium: 1rem;
+    --spacing-large: 2rem;
+}
+
+/* تكييف للأجهزة الصغيرة */
+@media (max-width: 768px) {
+    :root {
+        --base-font-size: 14px;
+        --spacing-small: 0.4rem;
+        --spacing-medium: 0.8rem;
+        --spacing-large: 1.5rem;
+    }
+}
+
 /* أنماط نافذة الرسائل المحسنة */
 .chat-modal-content {
     background-color: #1a1a1a;
