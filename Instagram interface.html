@@ -613,6 +613,7 @@ function showUserMenu(event) {
         </div>
     </div>
 </nav>
+
 <!-- إضافة في قسم شريط العنوان، بعد شريط التنقل العلوي -->
 <div class="stories-container rtl">
     <!-- عنصر إضافة قصة جديدة (يظهر فقط للمستخدمين المسجلين) -->
@@ -686,12 +687,11 @@ function showUserMenu(event) {
         </div>
     </div>
 </div>
+
+
 <!-- تحديث الشريط الجانبي ليشمل قسم معلومات المستخدم -->
 <div class="side-nav" id="sideNav">
-    <div class="side-nav-header">
-        <h2 class="side-nav-title">تاكسي العراق</h2>
-        <button class="side-nav-close" onclick="toggleSideNav()">×</button>
-    </div>
+   
     
     <!-- إضافة قسم معلومات المستخدم -->
     <div class="side-nav-user-info">
@@ -712,7 +712,6 @@ function showUserMenu(event) {
             </div>
         </div>
     </div>
-    
     <div class="side-nav-items">
         <a href="/" class="side-nav-item"><i class="fas fa-home" style="color: #FFD700;"></i> الرئيسية</a>
         <a href="drivers.html" class="side-nav-item"><i class="fas fa-users" style="color: #4CAF50;"></i> السائقين</a>
@@ -722,6 +721,9 @@ function showUserMenu(event) {
         <a href="messages.html" class="side-nav-item"><i class="fas fa-envelope" style="color: #FFC107;"></i> الرسائل</a>
         <a href="settings.html" class="side-nav-item"><i class="fas fa-cog" style="color: #607D8B;"></i> الإعدادات</a>
         <a href="#" class="side-nav-item driver-only" style="display: none;"><i class="fas fa-user-plus" style="color: #E91E63;"></i> إضافة سائق</a>
+        <a href="javascript:void(0)" class="side-nav-item" onclick="window.savedPostsManager.loadSavedPostsPage()">
+            <i class="fas fa-bookmark" style="color: #FF9800;"></i> المنشورات المحفوظة
+        </a>
     </div>
     <!-- إضافة زر تسجيل الخروج في الشريط الجانبي -->
     <div class="side-nav-footer">
@@ -1206,66 +1208,203 @@ function showUserMenu(event) {
     <div id="notificationStatus" class="mt-2 small text-muted"></div>
     </div>
 
-    <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="searchModalLabel">بحث عن سائق</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="search-wrapper">
-                        <!-- حقل البحث -->
-                        <div class="search-input-wrapper mb-3">
-                            <div class="input-group">
-                                <input type="text" class="form-control search-input" id="navbarSearchInput"
-                                    placeholder="ابحث عن اسم السائق، المنطقة، نوع السيارة..." autofocus>
-                                <span class="input-group-text">
-                                    <i class="fas fa-search"></i>
-                                </span>
-                            </div>
+    <<!-- تعديل نافذة البحث المنبثقة لتشمل البحث في المنشورات -->
+<div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="searchModalLabel">بحث</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="search-wrapper">
+                    <!-- حقل البحث -->
+                    <div class="search-input-wrapper mb-3">
+                        <div class="input-group">
+                            <input type="text" class="form-control search-input" id="navbarSearchInput"
+                                placeholder="ابحث عن سائق، منطقة، منشور..." autofocus>
+                            <span class="input-group-text">
+                                <i class="fas fa-search"></i>
+                            </span>
                         </div>
+                    </div>
 
-                        <!-- خيارات البحث -->
-                        <div class="search-options mb-3">
-                            <div class="btn-group w-100" role="group">
-                                <input type="radio" class="btn-check" name="searchType" id="searchAll" checked>
-                                <label class="btn btn-outline-primary" for="searchAll">الكل</label>
+                    <!-- خيارات البحث -->
+                    <div class="search-options mb-3">
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="searchType" id="searchAll" checked>
+                            <label class="btn btn-outline-primary" for="searchAll">الكل</label>
 
-                                <input type="radio" class="btn-check" name="searchType" id="searchName">
-                                <label class="btn btn-outline-primary" for="searchName">الاسم</label>
+                            <input type="radio" class="btn-check" name="searchType" id="searchName">
+                            <label class="btn btn-outline-primary" for="searchName">السائقين</label>
 
-                                <input type="radio" class="btn-check" name="searchType" id="searchLocation">
-                                <label class="btn btn-outline-primary" for="searchLocation">المنطقة</label>
+                            <input type="radio" class="btn-check" name="searchType" id="searchLocation">
+                            <label class="btn btn-outline-primary" for="searchLocation">المناطق</label>
 
-                                <input type="radio" class="btn-check" name="searchType" id="searchCar">
-                                <label class="btn btn-outline-primary" for="searchCar">السيارة</label>
-                            </div>
+                            <input type="radio" class="btn-check" name="searchType" id="searchPosts">
+                            <label class="btn btn-outline-primary" for="searchPosts">المنشورات</label>
                         </div>
+                    </div>
 
-                        <!-- نتائج البحث -->
-                        <div id="searchResults" class="search-results"></div>
+                    <!-- خيارات البحث في المنشورات (تظهر فقط عند اختيار البحث في المنشورات) -->
+                    <div class="post-search-options mb-3" id="postSearchOptions" style="display: none;">
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="postSearchType" id="searchPostsAll" checked>
+                            <label class="btn btn-outline-secondary" for="searchPostsAll">الكل</label>
+
+                            <input type="radio" class="btn-check" name="postSearchType" id="searchPostsContent">
+                            <label class="btn btn-outline-secondary" for="searchPostsContent">المحتوى</label>
+
+                            <input type="radio" class="btn-check" name="postSearchType" id="searchPostsAuthor">
+                            <label class="btn btn-outline-secondary" for="searchPostsAuthor">الكاتب</label>
+                        </div>
+                    </div>
+
+                    <!-- نتائج البحث -->
+                    <div id="searchResults" class="search-results">
+                        <!-- نتائج البحث ستظهر هنا -->
+                        <div class="search-loading" style="display: none;">
+                            <div class="spinner"></div>
+                            <p>جاري البحث...</p>
+                        </div>
+                        <div class="no-results" style="display: none;">
+                            <i class="fas fa-search fa-3x"></i>
+                            <p>لا توجد نتائج للبحث</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- نافذة الرسائل المنبثقة -->
-    <div class="modal fade" id="messagesModal" tabindex="-1" aria-labelledby="messagesModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="messagesModalLabel">الرسائل</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+  <!-- نافذة الرسائل المنبثقة المحسنة -->
+<div class="modal fade" id="messagesModal" tabindex="-1" aria-labelledby="messagesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content chat-modal-content">
+            <div class="modal-header chat-modal-header">
+                <h5 class="modal-title" id="messagesModalLabel">
+                    <i class="fas fa-envelope-open-text me-2" style="color: #FFD700;"></i>
+                    الرسائل
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <!-- قسم البحث في الرسائل -->
+                <div class="messages-search-container p-2 border-bottom">
+                    <div class="input-group">
+                        <input type="text" id="messagesSearchInput" class="form-control" placeholder="البحث في الرسائل...">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <div id="messagesContainer">
-                        <!-- قائمة الرسائل ستظهر هنا -->
+                
+                <!-- فلتر الرسائل -->
+                <div class="messages-filter-container p-2 border-bottom">
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="messageFilterType" id="allMessages" checked>
+                        <label class="btn btn-outline-primary" for="allMessages">الكل</label>
+
+                        <input type="radio" class="btn-check" name="messageFilterType" id="driverMessages">
+                        <label class="btn btn-outline-primary" for="driverMessages">السائقين</label>
+
+                        <input type="radio" class="btn-check" name="messageFilterType" id="userMessages">
+                        <label class="btn btn-outline-primary" for="userMessages">المستخدمين</label>
+
+                        <input type="radio" class="btn-check" name="messageFilterType" id="unreadMessages">
+                        <label class="btn btn-outline-primary" for="unreadMessages">غير مقروءة</label>
+                    </div>
+                </div>
+
+                <!-- حاوية الرسائل -->
+                <div id="messagesList" class="messages-list">
+                    <div class="loading-messages">
+                        <div class="spinner-border text-gold" role="status">
+                            <span class="visually-hidden">جاري التحميل...</span>
+                        </div>
+                        <p>جاري تحميل الرسائل...</p>
+                    </div>
+                </div>
+                
+                <!-- رسالة لا توجد رسائل -->
+                <div id="noMessagesContainer" class="no-messages-container d-none">
+                    <div class="no-messages-content text-center p-5">
+                        <i class="fas fa-envelope-open fa-4x mb-3" style="color: #555;"></i>
+                        <h5>لا توجد رسائل</h5>
+                        <p class="text-muted">لم يتم العثور على أي رسائل.</p>
+                    </div>
+                </div>
+                
+                <!-- رسالة خطأ -->
+                <div id="errorMessagesContainer" class="error-messages-container d-none">
+                    <div class="error-messages-content text-center p-5">
+                        <i class="fas fa-exclamation-triangle fa-4x mb-3 text-danger"></i>
+                        <h5>حدث خطأ</h5>
+                        <p class="text-muted" id="errorMessagesText">حدث خطأ أثناء تحميل الرسائل.</p>
+                        <button class="btn btn-primary mt-3" onclick="loadMessagesBetweenUsersAndDrivers()">
+                            <i class="fas fa-sync-alt me-2"></i>
+                            إعادة المحاولة
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+<!-- نافذة المحادثة بين المستخدم والسائق -->
+<div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content chat-window" style="max-width: 95%; border-radius: 15px; overflow: hidden;">
+            <!-- رأس النافذة -->
+            <div class="chat-header" style="background: #333; color: #FFD700; padding: 15px; display: flex; align-items: center; justify-content: space-between;">
+                <div class="chat-user-info d-flex align-items-center">
+                    <img id="chatUserAvatar" src="default-avatar.png" alt="صورة المستخدم" class="avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                    <div class="ms-2">
+                        <h5 id="chatUserName" style="margin: 0; font-size: 1.2rem;">اسم المستخدم</h5>
+                        <p id="chatUserInfo" class="mb-0 small text-white-50" style="font-size: 0.9rem;">معلومات إضافية</p>
+                    </div>
+                </div>
+                <div class="chat-header-actions">
+                    <button type="button" class="btn-close btn-close-white ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            </div>
+            
+            <!-- جسم المحادثة -->
+            <div class="chat-body" id="chatMessagesContainer" style="background: #1a1a1a; color: #fff; padding: 15px; max-height: 60vh; overflow-y: auto;">
+                <div class="loading-messages" style="text-align: center; padding: 20px;">
+                    <div class="spinner-border text-gold" role="status">
+                        <span class="visually-hidden">جاري التحميل...</span>
+                    </div>
+                    <p style="margin-top: 10px;">جاري تحميل الرسائل...</p>
+                </div>
+            </div>
+            
+            <!-- تذكير إرسال الموقع -->
+            <div id="locationReminderBanner" class="location-reminder-banner d-none" style="background: #FFD700; color: #000; padding: 10px; display: flex; align-items: center; justify-content: space-between;">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                    <span style="font-size: 0.9rem;">مشاركة موقعك الحالي تساعد السائق على إيجادك بسهولة!</span>
+                </div>
+                <button class="btn btn-sm btn-primary ms-auto" id="quickShareLocationBtn" style="background: #333; color: #FFD700; border: none; padding: 5px 10px; border-radius: 5px;">
+                    <i class="fas fa-location-arrow me-1"></i>
+                    مشاركة موقعي
+                </button>
+            </div>
+            
+            <!-- شريط الإدخال -->
+            <div class="chat-footer" style="background: #333; padding: 10px; display: flex; align-items: center; gap: 10px;">
+                <button class="action-button location-btn" id="shareLocationBtn" title="مشاركة الموقع" style="background: #FFD700; color: #000; border: none; padding: 10px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-map-marker-alt"></i>
+                </button>
+                <input type="text" class="chat-input" id="chatMessageInput" placeholder="اكتب رسالتك هنا..." style="flex: 1; padding: 10px; border: 1px solid #FFD700; border-radius: 20px; background: #1a1a1a; color: #fff;">
+                <button class="action-button send-btn" id="sendMessageBtn" style="background: #FFD700; color: #000; border: none; padding: 10px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
     <!-- نافذة المحادثة -->
     <div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
@@ -8106,7 +8245,129 @@ function showLoading() {
 <script src="post-chat-integration.js"></script>
 <link rel="stylesheet" href="message-notification-styles.css">
 
+<script src="saved-posts.js"></script>
 
+<script src="chatttttt-system-integration.js"></script>
+<script src="ssssstyle.css"></script>
+<script src="post-search.js"></script>
+
+<!-- مكتبة SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- مكتبة تحديد الموقع في Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+<script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
+
+<!-- ملف النافذة المنبثقة للخريطة -->
+<script src="map-popup.js"></script>
+
+<!-- إضافة هذا الكود في نهاية الصفحة، قبل إغلاق وسم body -->
+
+<!-- تضمين ملف نظام البحث في المنشورات -->
+<script src="post-search.js"></script>
+
+<!-- تفعيل البحث في المنشورات -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // تهيئة نظام البحث إذا لم يكن محملاً
+        if (typeof postSearchSystem === 'undefined') {
+            console.warn('نظام البحث في المنشورات غير موجود، جاري تهيئته...');
+            
+            // تحميل ملف البحث ديناميكياً إذا لم يكن موجوداً
+            const script = document.createElement('script');
+            script.src = 'post-search.js';
+            script.onload = function() {
+                if (window.postSearchSystem) {
+                    window.postSearchSystem.init();
+                }
+            };
+            document.body.appendChild(script);
+        } else if (window.postSearchSystem && typeof window.postSearchSystem.init === 'function') {
+            // إذا كان نظام البحث موجوداً بالفعل، تأكد من تهيئته
+            window.postSearchSystem.init();
+        }
+        
+        // إعداد التفاعل بين عناصر البحث
+        setupSearchInteractions();
+    });
+    
+    function setupSearchInteractions() {
+        // التبديل بين خيارات البحث المختلفة
+        const searchTypeRadios = document.querySelectorAll('input[name="searchType"]');
+        const postSearchOptions = document.getElementById('postSearchOptions');
+        
+        searchTypeRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                // إظهار أو إخفاء خيارات البحث في المنشورات
+                if (radio.id === 'searchPosts') {
+                    postSearchOptions.style.display = 'block';
+                } else {
+                    postSearchOptions.style.display = 'none';
+                }
+                
+                // تحديث نص مساعدة البحث حسب الاختيار
+                const searchInput = document.getElementById('navbarSearchInput');
+                switch (radio.id) {
+                    case 'searchName':
+                        searchInput.placeholder = 'ابحث عن اسم السائق...';
+                        break;
+                    case 'searchLocation':
+                        searchInput.placeholder = 'ابحث عن المنطقة...';
+                        break;
+                    case 'searchPosts':
+                        searchInput.placeholder = 'ابحث في المنشورات...';
+                        break;
+                    default:
+                        searchInput.placeholder = 'ابحث عن سائق، منطقة، منشور...';
+                }
+            });
+        });
+        
+        // فلترة نتائج البحث حسب النوع المحدد
+        document.querySelectorAll('input[name="postSearchType"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                // تحديث نوع البحث في نظام البحث في المنشورات
+                if (window.postSearchSystem) {
+                    switch (radio.id) {
+                        case 'searchPostsContent':
+                            window.postSearchSystem.searchType = 'content';
+                            break;
+                        case 'searchPostsAuthor':
+                            window.postSearchSystem.searchType = 'author';
+                            break;
+                        default:
+                            window.postSearchSystem.searchType = 'all';
+                    }
+                    
+                    // إعادة البحث بالنوع الجديد
+                    const searchInput = document.getElementById('navbarSearchInput');
+                    if (searchInput.value.trim().length >= 2) {
+                        window.postSearchSystem.searchQuery = searchInput.value.trim();
+                        window.postSearchSystem.performSearch();
+                    }
+                }
+            });
+        });
+        
+        // تفعيل البحث عند إدخال نص
+        const searchInput = document.getElementById('navbarSearchInput');
+        searchInput.addEventListener('input', function() {
+            const query = searchInput.value.trim();
+            if (query.length >= 2) {
+                // تنفيذ البحث في نظام البحث في المنشورات
+                if (window.postSearchSystem) {
+                    window.postSearchSystem.searchQuery = query;
+                    window.postSearchSystem.performSearch();
+                }
+            } else {
+                // إخفاء نتائج البحث إذا كان النص أقل من 2 حرف
+                if (window.postSearchSystem) {
+                    window.postSearchSystem.hideResults();
+                }
+            }
+        });
+    }
+</script>
 
 
 

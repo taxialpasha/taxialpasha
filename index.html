@@ -806,10 +806,7 @@ function showUserMenu(event) {
 </div>
 <!-- تحديث الشريط الجانبي ليشمل قسم معلومات المستخدم -->
 <div class="side-nav" id="sideNav">
-    <div class="side-nav-header">
-        <h2 class="side-nav-title">تاكسي العراق</h2>
-        <button class="side-nav-close" onclick="toggleSideNav()">×</button>
-    </div>
+   
     
     <!-- إضافة قسم معلومات المستخدم -->
     <div class="side-nav-user-info">
@@ -1460,13 +1457,13 @@ function showUserMenu(event) {
     <!-- نافذة الرسائل المنبثقة -->
     <div class="modal fade" id="messagesModal" tabindex="-1" aria-labelledby="messagesModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="messagesModalLabel">الرسائل</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-content" style="background: #1a1a1a; color: #fff; border-radius: 15px; overflow: hidden;">
+                <div class="modal-header" style="background: #333; border-bottom: 2px solid #FFD700;">
+                    <h5 class="modal-title" id="messagesModalLabel" style="color: #FFD700;">الرسائل</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="color: #FFD700;"></button>
                 </div>
-                <div class="modal-body">
-                    <div id="messagesContainer">
+                <div class="modal-body" style="max-height: 500px; overflow-y: auto; padding: 20px;">
+                    <div id="messagesContainer" style="display: flex; flex-direction: column; gap: 15px;">
                         <!-- قائمة الرسائل ستظهر هنا -->
                     </div>
                 </div>
@@ -1477,18 +1474,19 @@ function showUserMenu(event) {
     <!-- نافذة المحادثة -->
     <div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content chat-window">
+            
+            <div class="modal-content chat-window" style="background: #1a1a1a; color: #fff; border-radius: 15px; overflow: hidden;">
                 <!-- رأس النافذة مع صورة واسم السائق -->
-                <div class="modal-header chat-header">
+                <div class="modal-header chat-header" style="background: #333; border-bottom: 2px solid #FFD700; display: flex; align-items: center; gap: 15px; padding: 15px;">
                     <img id="driverImage"
                         src="https://firebasestorage.googleapis.com/v0/b/messageemeapp.appspot.com/o/driver-images%2F7605a607-6cf8-4b32-aee1-fa7558c98452.png?alt=media&token=5cf9e67c-ba6e-4431-a6a0-79dede15b527"
                         alt="صورة السائق" class="rounded-circle me-2" style="width: 60px; height: 60px;">
                     <div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+
                         <h5 class="modal-title" id="driverName">اسم السائق</h5>
                         <small id="driverCardInfo" style="color: #ffffff;">بطاقة السائق</small>
                     </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
-
                 </div>
                 <!-- اختيار المشوار -->
                 <div class="modal-body chat-body">
@@ -1515,6 +1513,9 @@ function showUserMenu(event) {
                 <!-- شريط الإدخال -->
                 <div class="modal-footer chat-footer d-none">
                     <div class="input-group">
+                        <button class="btn btn-secondary" id="shareLocationBtn" title="مشاركة الموقع" style="margin-right: 10px;">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </button>
                         <input type="text" id="chatInput" class="form-control chat-input"
                             placeholder="اكتب رسالتك هنا...">
                         <button class="btn btn-primary send-btn" onclick="sendMessage()">
@@ -4941,12 +4942,37 @@ function isUserInSameLocation(userLocation, driverLocation) {
         // دالة لإضافة السائق إلى المفضلة
         function addToFavorites(driverId) {
             const driverCard = document.querySelector(`[data-driver-id="${driverId}"]`);
-            if (driverCard) {
-            const favoritesContainer = document.getElementById('favoritesContainer');
+            if (!driverCard) {
+                showToast('لم يتم العثور على بطاقة السائق', 'error');
+                return;
+            }
+            
+            let favoritesContainer = document.getElementById('favoritesContainer');
+            if (!favoritesContainer) {
+                // Create and style the favorites container
+                favoritesContainer = document.createElement('div');
+                favoritesContainer.id = 'favoritesContainer';
+                favoritesContainer.className = 'favorites-container';
+                favoritesContainer.style.position = 'fixed';
+                favoritesContainer.style.top = '10px';
+                favoritesContainer.style.right = '10px';
+                favoritesContainer.style.zIndex = '1000';
+                favoritesContainer.style.background = '#fff';
+                favoritesContainer.style.padding = '10px';
+                favoritesContainer.style.border = '1px solid #ccc';
+                document.body.appendChild(favoritesContainer);
+            }
+            
+            // Prevent adding duplicate favorite
+            if (favoritesContainer.querySelector(`[data-fav-driver-id="${driverId}"]`)) {
+                showToast('السائق موجود بالفعل في المفضلة.', 'info');
+                return;
+            }
+            
             const clonedCard = driverCard.cloneNode(true);
+            clonedCard.setAttribute('data-fav-driver-id', driverId);
             favoritesContainer.appendChild(clonedCard);
             showToast('تمت إضافة السائق إلى المفضلة', 'success');
-            }
         }
 
 
@@ -4979,9 +5005,12 @@ function isUserInSameLocation(userLocation, driverLocation) {
                     // إنشاء قائمة المحادثات
                     let chatListHtml = '';
                     if (driverChats.length > 0) {
-                        driverChats.forEach(chat => {
-                            // بيانات المستخدم
-                            const userName = getUserName(chat.userId);
+                        driverChats.forEach(async (chat) => {
+                            // جلب بيانات المستخدم من قاعدة البيانات باستخدام معرف المستخدم
+                            const userSnapshot = await database.ref(`users/${chat.userId}`).once('value');
+                            const userData = userSnapshot.val();
+                            const userName = userData && userData.fullName ? userData.fullName : `مستخدم ${chat.userId.substring(0, 6)}`;
+                            const userPhoto = userData && userData.photoUrl ? userData.photoUrl : 'https://firebasestorage.googleapis.com/v0/b/messageemeapp.appspot.com/o/user-photos%2F1741376568952_default-avatar.png?alt=media&token=ad672ccf-c8e1-4788-a252-52de6c3ceedd';
                             const lastMessage = getLastMessage(chat.chatData);
                             const unreadCount = getUnreadCount(chat.chatData, driverId);
 
@@ -4989,7 +5018,7 @@ function isUserInSameLocation(userLocation, driverLocation) {
                         <div class="chat-user-item ${unreadCount > 0 ? 'unread' : ''}" 
                              onclick="openDriverChatWindow('${driverId}', '${chat.userId}')">
                             <div class="chat-user-avatar">
-                                <img src="https://firebasestorage.googleapis.com/v0/b/messageemeapp.appspot.com/o/driver-images%2F7605a607-6cf8-4b32-aee1-fa7558c98452.png?alt=media&token=5cf9e67c-ba6e-4431-a6a0-79dede15b527" alt="${userName}">
+                                <img src="${userPhoto}" alt="${userName}">
                             </div>
                             <div class="chat-user-info">
                                 <h6>${userName}</h6>
@@ -5002,34 +5031,57 @@ function isUserInSameLocation(userLocation, driverLocation) {
                         </div>
                     `;
                         });
+
+                        // بعد اكتمال بناء القائمة، عرضها
+                        setTimeout(() => {
+                            Swal.fire({
+                                title: 'الرسائل الواردة',
+                                html: `
+                            <div class="driver-chats-container">
+                                ${chatListHtml}
+                            </div>
+                        `,
+                                width: '500px',
+                                padding: '20px',
+                                background: '#1a1a1a',
+                                color: '#FFFFFF',
+                                showConfirmButton: false,
+                                showCloseButton: true,
+                                customClass: {
+                                    popup: 'dark-popup',
+                                    title: 'text-white'
+                                }
+                            });
+
+                            // تحديث حالة الرسائل كمقروءة بعد عرضها
+                            updateMessagesReadStatus(driverId);
+
+                            hideLoading();
+                        }, 500); // تأخير بسيط لضمان اكتمال بناء القائمة
                     } else {
                         chatListHtml = '<div class="no-chats-message">لا توجد محادثات بعد</div>';
+
+                        Swal.fire({
+                            title: 'الرسائل الواردة',
+                            html: `
+                        <div class="driver-chats-container">
+                            ${chatListHtml}
+                        </div>
+                    `,
+                            width: '500px',
+                            padding: '20px',
+                            background: '#1a1a1a',
+                            color: '#FFFFFF',
+                            showConfirmButton: false,
+                            showCloseButton: true,
+                            customClass: {
+                                popup: 'dark-popup',
+                                title: 'text-white'
+                            }
+                        });
+
+                        hideLoading();
                     }
-
-                    // إظهار نافذة المحادثات
-                    Swal.fire({
-                        title: 'الرسائل الواردة',
-                        html: `
-                    <div class="driver-chats-container">
-                        ${chatListHtml}
-                    </div>
-                `,
-                        width: '500px',
-                        padding: '20px',
-                        background: '#1a1a1a',
-                        color: '#FFFFFF',
-                        showConfirmButton: false,
-                        showCloseButton: true,
-                        customClass: {
-                            popup: 'dark-popup',
-                            title: 'text-white'
-                        }
-                    });
-
-                    // تحديث حالة الرسائل كمقروءة بعد عرضها
-                    updateMessagesReadStatus(driverId);
-
-                    hideLoading();
                 })
                 .catch(error => {
                     console.error('Error loading messages:', error);
@@ -5039,131 +5091,136 @@ function isUserInSameLocation(userLocation, driverLocation) {
         }
 
 
-     // فتح نافذة المحادثة بين السائق والمستخدم
-function openDriverChatWindow(driverId, userId) {
-    showLoading();
+    // فتح نافذة المحادثة بين السائق والمستخدم
+    function openDriverChatWindow(driverId, userId) {
+        showLoading();
 
-    // جلب معلومات المستخدم
-    Promise.all([
-        database.ref(`users/${userId}`).once('value'),
-        database.ref(`chats/${userId}/${driverId}/messages`).once('value')
-    ])
-        .then(([userSnapshot, messagesSnapshot]) => {
-            // استخراج بيانات المستخدم مع التحقق من جميع الحقول المحتملة
-            const userData = userSnapshot.val() || {};
-            
-            // استخدام الاسم الكامل من عدة حقول محتملة
-            const userName = userData.fullName || userData.name || `مستخدم ${userId.substring(0, 6)}`;
-            
-            // استخدام صورة الملف الشخصي من عدة حقول محتملة
-            const userPhoto = userData.photoUrl || userData.profilePicture || userData.imageUrl || 'https://firebasestorage.googleapis.com/v0/b/messageemeapp.appspot.com/o/user-photos%2F1741376568952_default-avatar.png?alt=media&token=ad672ccf-c8e1-4788-a252-52de6c3ceedd';
-            
-            const messages = messagesSnapshot.val() || {};
-
-            // تحويل المفاتيح إلى مصفوفة
-            const messagesList = Object.keys(messages).map(key => ({
-                id: key,
-                ...messages[key]
-            })).sort((a, b) => a.timestamp - b.timestamp);
-
-            // تجهيز HTML للرسائل
-            let messagesHtml = '';
-            messagesList.forEach(msg => {
-                const isFromDriver = msg.sender === driverId;
+        // جلب معلومات المستخدم
+        Promise.all([
+            database.ref(`users/${userId}`).once('value'),
+            database.ref(`chats/${userId}/${driverId}/messages`).once('value')
+        ])
+            .then(([userSnapshot, messagesSnapshot]) => {
+                // استخراج بيانات المستخدم مع التحقق من جميع الحقول المحتملة
+                const userData = userSnapshot.val() || {};
                 
-                // التحقق من نوع الرسالة
-                if (msg.type === 'location') {
-                    // إنشاء عرض لرسالة الموقع
-                    messagesHtml += createLocationMessageView(msg, msg.id, isFromDriver);
-                } else {
-                    // إنشاء عرض لرسالة نصية عادية
-                    messagesHtml += `
-                        <div class="message ${isFromDriver ? 'sent' : 'received'}">
-                            <div class="message-bubble ${isFromDriver ? 'sent' : 'received'}">
-                                <p>${msg.text || ''}</p>
-                                <div class="timestamp">${formatMessageTime(msg.timestamp)}</div>
+                // استخدام الاسم الكامل من عدة حقول محتملة
+                const userName = userData.fullName || userData.name || `مستخدم ${userId.substring(0, 6)}`;
+                
+                // استخدام صورة الملف الشخصي من عدة حقول محتملة
+                const userPhoto = userData.photoUrl || userData.profilePicture || userData.imageUrl || 'https://firebasestorage.googleapis.com/v0/b/messageemeapp.appspot.com/o/user-photos%2F1741376568952_default-avatar.png?alt=media&token=ad672ccf-c8e1-4788-a252-52de6c3ceedd';
+                
+                const messages = messagesSnapshot.val() || {};
+
+                // تحويل المفاتيح إلى مصفوفة
+                const messagesList = Object.keys(messages).map(key => ({
+                    id: key,
+                    ...messages[key]
+                })).sort((a, b) => a.timestamp - b.timestamp);
+
+                // تجهيز HTML للرسائل
+                let messagesHtml = '';
+                messagesList.forEach(msg => {
+                    const isFromDriver = msg.sender === driverId;
+                    
+                    // التحقق من نوع الرسالة
+                    if (msg.type === 'location') {
+                        // إنشاء عرض لرسالة الموقع
+                        messagesHtml += createLocationMessageView(msg, msg.id, isFromDriver);
+                    } else {
+                        // إنشاء عرض لرسالة نصية عادية
+                        messagesHtml += `
+                            <div class="message ${isFromDriver ? 'sent' : 'received'}">
+                                <div class="message-bubble ${isFromDriver ? 'sent' : 'received'}">
+                                    <p>${msg.text || ''}</p>
+                                    <div class="timestamp">${formatMessageTime(msg.timestamp)}</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+
+                // إنشاء نافذة المحادثة مع بيانات المستخدم المحدثة
+                Swal.fire({
+                    title: userName,
+                    html: `
+                        <div class="chat-container">
+                            <div class="chat-header" style="display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #FFD700;">
+                                <img src="${userPhoto}" alt="${userName}" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; object-fit: cover;">
+                                <div>
+                                    <h5 style="margin: 0; color: #FFFFFF;">${userName}</h5>
+                                    ${userData.email ? `<small style="color: #CCCCCC;">${userData.email}</small>` : ''}
+                                </div>
+                            </div>
+                            <div class="chat-body" id="chatBody" style="flex-grow: 1; overflow-y: auto; padding: 15px; background-color: #1a1a1a;">
+                                ${messagesHtml || '<div class="no-messages">لا توجد رسائل سابقة</div>'}
+                            </div>
+                            <div class="chat-footer" style="padding: 10px; display: flex; gap: 10px; background-color: #242424; border-top: 1px solid #FFD700;">
+                                <button class="location-btn" id="shareLocationBtn" title="مشاركة الموقع" style="width: 40px; height: 40px; border-radius: 50%; background: #333; color: #FFD700; border: none; cursor: pointer;" onclick="shareDriverLocation('driverIdValue', 'userIdValue')">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </button>
+                                <input type="text" id="driverMessageInput" class="chat-input" placeholder="اكتب رسالتك هنا..." style="flex-grow: 1; border-radius: 20px; padding: 8px 15px; background: #333; color: #FFF; border: 1px solid #FFD700;">
+                                <button class="send-btn" onclick="sendDriverMessage('${driverId}', '${userId}')" style="width: 40px; height: 40px; border-radius: 50%; background: #FFD700; color: #000; border: none; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
                             </div>
                         </div>
-                    `;
-                }
+                    `,
+                    width: '90%',
+                    padding: '0',
+                    background: '#1a1a1a',
+                    color: '#FFFFFF',
+                    showConfirmButton: false,
+                    showCloseButton: true,
+                    didOpen: () => {
+                        // تمرير للأسفل ليظهر آخر رسالة
+                        const chatBody = document.getElementById('chatBody');
+                        if (chatBody) {
+                            chatBody.scrollTop = chatBody.scrollHeight;
+                        }
+
+                        // إضافة مستمع الحدث لمفتاح Enter
+                        const messageInput = document.getElementById('driverMessageInput');
+                        if (messageInput) {
+                            messageInput.addEventListener('keypress', function (e) {
+                                if (e.key === 'Enter') {
+                                    sendDriverMessage(driverId, userId);
+                                }
+                            });
+                            messageInput.focus();
+                        }
+
+                        // إضافة مستمع الحدث لزر مشاركة الموقع
+                        const shareLocationBtn = document.getElementById('shareLocationBtn');
+                        if (shareLocationBtn) {
+                            shareLocationBtn.addEventListener('click', async function() {
+                                try {
+                                    await shareDriverLocation(driverId, userId);
+                                } catch (error) {
+                                    console.error('Error sharing location:', error);
+                                    showToast('حدث خطأ أثناء مشاركة الموقع', 'error');
+                                }
+                            });
+                        }
+
+                        // تعليم جميع رسائل هذا المستخدم كمقروءة
+                        markConversationAsRead(driverId, userId);
+                    },
+                    customClass: {
+                        popup: 'dark-popup chat-window',
+                        title: 'text-white chat-header',
+                        closeButton: 'chat-close-btn'
+                    }
+                });
+
+                hideLoading();
+            })
+            .catch(error => {
+                console.error('Error opening chat:', error);
+                hideLoading();
+                showToast('حدث خطأ في فتح المحادثة', 'error');
             });
-
-            // إنشاء نافذة المحادثة مع بيانات المستخدم المحدثة
-            Swal.fire({
-                title: userName,
-                html: `
-                    <div class="chat-container">
-                        <div class="chat-header" style="display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #FFD700;">
-                            <img src="${userPhoto}" alt="${userName}" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; object-fit: cover;">
-                            <div>
-                                <h5 style="margin: 0; color: #FFFFFF;">${userName}</h5>
-                                ${userData.email ? `<small style="color: #CCCCCC;">${userData.email}</small>` : ''}
-                            </div>
-                        </div>
-                        <div class="chat-body" id="chatBody" style="flex-grow: 1; overflow-y: auto; padding: 15px; background-color: #1a1a1a;">
-                            ${messagesHtml || '<div class="no-messages">لا توجد رسائل سابقة</div>'}
-                        </div>
-                        <div class="chat-footer" style="padding: 10px; display: flex; gap: 10px; background-color: #242424; border-top: 1px solid #FFD700;">
-                            <button class="location-btn" id="shareLocationBtn" title="مشاركة الموقع" style="width: 40px; height: 40px; border-radius: 50%; background: #333; color: #FFD700; border: none; cursor: pointer;">
-                                <i class="fas fa-map-marker-alt"></i>
-                            </button>
-                            <input type="text" id="driverMessageInput" class="chat-input" placeholder="اكتب رسالتك هنا..." style="flex-grow: 1; border-radius: 20px; padding: 8px 15px; background: #333; color: #FFF; border: 1px solid #FFD700;">
-                            <button class="send-btn" onclick="sendDriverMessage('${driverId}', '${userId}')" style="width: 40px; height: 40px; border-radius: 50%; background: #FFD700; color: #000; border: none; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
-                        </div>
-                    </div>
-                `,
-                width: '90%',
-                padding: '0',
-                background: '#1a1a1a',
-                color: '#FFFFFF',
-                showConfirmButton: false,
-                showCloseButton: true,
-                didOpen: () => {
-                    // تمرير للأسفل ليظهر آخر رسالة
-                    const chatBody = document.getElementById('chatBody');
-                    if (chatBody) {
-                        chatBody.scrollTop = chatBody.scrollHeight;
-                    }
-
-                    // إضافة مستمع الحدث لمفتاح Enter
-                    const messageInput = document.getElementById('driverMessageInput');
-                    if (messageInput) {
-                        messageInput.addEventListener('keypress', function (e) {
-                            if (e.key === 'Enter') {
-                                sendDriverMessage(driverId, userId);
-                            }
-                        });
-                        messageInput.focus();
-                    }
-
-                    // إضافة مستمع الحدث لزر مشاركة الموقع
-                    const shareLocationBtn = document.getElementById('shareLocationBtn');
-                    if (shareLocationBtn) {
-                        shareLocationBtn.addEventListener('click', function() {
-                            shareDriverLocation(driverId, userId);
-                        });
-                    }
-
-                    // تعليم جميع رسائل هذا المستخدم كمقروءة
-                    markConversationAsRead(driverId, userId);
-                },
-                customClass: {
-                    popup: 'dark-popup chat-window',
-                    title: 'text-white chat-header',
-                    closeButton: 'chat-close-btn'
-                }
-            });
-
-            hideLoading();
-        })
-        .catch(error => {
-            console.error('Error opening chat:', error);
-            hideLoading();
-            showToast('حدث خطأ في فتح المحادثة', 'error');
-        });
-}
+    }
 
 
 // دالة مشاركة موقع السائق
