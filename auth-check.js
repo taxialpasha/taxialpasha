@@ -9,7 +9,6 @@ function openChatWindow(driverId, driverImage, driverName, driverCard) {
         return;
     }
     
-    // إذا كان المستخدم مسجل الدخول، نستمر بفتح نافذة المحادثة
     currentChatDriverId = driverId;
     currentDriverImage = driverImage || '';
     currentDriverName = driverName || '';
@@ -20,9 +19,32 @@ function openChatWindow(driverId, driverImage, driverName, driverCard) {
     const driverNameEl = document.getElementById('driverName');
     const driverCardInfoEl = document.getElementById('driverCardInfo');
     
-    if (driverImageEl) driverImageEl.src = currentDriverImage || 'https://firebasestorage.googleapis.com/v0/b/messageemeapp.appspot.com/o/driver-images%2F7605a607-6cf8-4b32-aee1-fa7558c98452.png?alt=media&token=5cf9e67c-ba6e-4431-a6a0-79dede15b527';
-    if (driverNameEl) driverNameEl.innerText = currentDriverName || 'السائق';
-    if (driverCardInfoEl) driverCardInfoEl.innerText = currentDriverCard ? `بطاقة: ${currentDriverCard}` : '';
+    if (driverImageEl) driverImageEl.src = driverImage || 'default-driver.png';
+    if (driverNameEl) driverNameEl.textContent = driverName || 'السائق';
+    if (driverCardInfoEl) driverCardInfoEl.textContent = driverCard ? `بطاقة: ${driverCard}` : '';
+
+    // تحديث بيانات المستخدم المسجل الدخول في رأس نافذة المحادثة
+    const userName = currentUser.fullName || currentUser.name || 'المستخدم';
+    const userPhoto = currentUser.photoUrl || 'default-avatar.png';
+
+    let userInfoEl = document.getElementById('userInfoInChat');
+    if (!userInfoEl) {
+        // إنشاء عنصر جديد إذا لم يكن موجودًا وإضافته إلى رأس المحادثة
+        userInfoEl = document.createElement('div');
+        userInfoEl.id = 'userInfoInChat';
+        userInfoEl.style.display = 'flex';
+        userInfoEl.style.alignItems = 'center';
+        userInfoEl.style.gap = '8px';
+        // إضافته بعد معلومات السائق
+        const chatHeader = document.querySelector('.chat-header');
+        if (chatHeader) {
+            chatHeader.appendChild(userInfoEl);
+        }
+    }
+    userInfoEl.innerHTML = `
+        <img src="${userPhoto}" alt="صورة المستخدم" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+        <span style="color: #fff; font-weight: bold;">${userName}</span>
+    `;
 
     // إعادة ضبط النافذة: إظهار إدخال الرحلة
     const tripSelection = document.getElementById('tripSelection');
@@ -34,8 +56,11 @@ function openChatWindow(driverId, driverImage, driverName, driverCard) {
     if (chatMessages) chatMessages.classList.add('d-none');
 
     // إظهار النافذة
-    const chatModal = new bootstrap.Modal(document.getElementById('chatModal'));
-    chatModal.show();
+    const chatModalEl = document.getElementById('chatModal');
+    if (chatModalEl) {
+        const chatModal = new bootstrap.Modal(chatModalEl);
+        chatModal.show();
+    }
 }
 
 // دالة للتحقق من حالة تسجيل الدخول قبل القيام بأي إجراء يتطلب تسجيل الدخول

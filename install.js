@@ -227,28 +227,7 @@ function updateUIAfterLogin(userData) {
         // استخدام الصورة الشخصية من البيانات
         const userPhoto = userData.photoUrl || userData.imageUrl || 'default-avatar.png';
         const userName = userData.fullName || userData.name || 'المستخدم';
-        
-        sideNavUserInfo.innerHTML = `
-            <div class="text-center">
-                <img src="${userPhoto}" 
-                     alt="${userName}" 
-                     class="rounded-circle mb-3"
-                     style="width: 80px; height: 80px; object-fit: cover; border: 3px solid #FFD700;">
-                <h6 class="text-white mb-1">${userName}</h6>
-                <span class="badge bg-gold mb-2">${userRole}</span>
-                <p class="text-white-50 small mb-3">${userData.email}</p>
-                <div class="mt-3">
-                  
-                </div>
-                ${userData.userType === 'driver' ? `
-                <div class="mt-3">
-                    <button onclick="toggleDriverAvailability()" class="btn btn-outline-primary btn-sm w-100 toggle-availability-btn">
-                        <i class="fas fa-toggle-on me-2"></i>${userData.isAvailable ? 'مشغول' : 'متاح'}
-                    </button>
-                </div>
-                ` : ''}
-            </div>
-        `;
+    
     }
     
     // إظهار أو إخفاء عناصر واجهة خاصة بالسائقين إذا كان المستخدم سائق
