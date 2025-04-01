@@ -2515,21 +2515,20 @@ body {
 }
 
 /* شريط الأدوات الجانبي */
-/* شريط الأدوات الجانبي */
 :root {
-    --side-nav-height-top: -0%;
+    --side-nav-height-top: 0%;
     /* المسافة من الأعلى */
     --side-nav-height-bottom: 0%;
     /* المسافة من الأسفل */
-    --side-nav-width: 200px;
+    --side-nav-width: 250px;
     /* عرض الشريط الجانبي */
-    --side-nav-border-radius: 40px;
+    --side-nav-border-radius: 20px;
     /* تقويس الحواف */
     --side-nav-bg-color: var(--secondary-color);
     /* لون خلفية الشريط */
     --side-nav-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
     /* ظل الشريط */
-    --backdrop-bg-color: rgba(252, 252, 252, 0);
+    --backdrop-bg-color: rgba(0, 0, 0, 0.5);
     /* لون خلفية التمويه */
 }
 
@@ -2588,12 +2587,6 @@ body {
     visibility: visible;
 }
 
-/* عند الفتح */
-.nav-backdrop.show {
-    opacity: 1;
-    visibility: visible;
-}
-
 /* الفلاتر */
 .location-filter {
     position: relative;
@@ -2612,9 +2605,9 @@ body {
     /* لون الخلفية */
     color: var(--secondary-color);
     /* لون النص */
-    width: 25px;
+    width: 40px;
     /* عرض الزر */
-    height: 25px;
+    height: 40px;
     /* ارتفاع الزر */
     border: none;
     /* إزالة الحدود */
@@ -2626,7 +2619,7 @@ body {
     /* لتوسيط الأيقونة عموديًا */
     justify-content: center;
     /* لتوسيط الأيقونة أفقيًا */
-    box-shadow: 0 2px 10px rgb(243, 241, 241);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     /* إضافة ظل */
     cursor: pointer;
     /* لتغيير المؤشر عند التمرير */
@@ -2635,7 +2628,7 @@ body {
 }
 
 .nav-toggle:hover {
-    transform: scale(1);
+    transform: scale(1.1);
     /* تكبير الزر قليلاً عند التمرير */
     box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
     /* تحسين الظل */
@@ -2666,6 +2659,44 @@ body {
     text-align: left;
     width: 100%;
     /* ليظهر بعرض الزر الأصلي */
+}
+
+/* تحسين التوافق مع الشاشات الصغيرة */
+@media (max-width: 768px) {
+    :root {
+        --side-nav-width: 100%;
+        /* عرض الشريط الجانبي يغطي الشاشة */
+        --side-nav-border-radius: 0;
+        /* إزالة تقويس الحواف */
+    }
+
+    .nav-toggle {
+        width: 35px;
+        height: 35px;
+    }
+
+    .add-driver-btn {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
+
+/* تحسين التوافق مع الشاشات الكبيرة */
+@media (min-width: 1024px) {
+    :root {
+        --side-nav-width: 300px;
+        /* زيادة عرض الشريط الجانبي */
+    }
+
+    .nav-toggle {
+        width: 50px;
+        height: 50px;
+    }
+
+    .add-driver-btn {
+        font-size: 1.1rem;
+        padding: 0.6rem 1.2rem;
+    }
 }
 
 .add-driver-btn:hover {
@@ -3691,11 +3722,172 @@ body {
 
 /* ...existing code... */
 
+/* Chat window container styling */
+.chat-window {
+    width: 100%;
+    max-width: 500px;
+    margin: auto;
+    background-color: #1a1a1a;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+}
+
+/* Chat body and messages */
+.chat-body {
+    padding: 15px;
+    overflow-y: auto;
+    background-color: #1a1a1a;
+}
+
+.message-bubble {
+    padding: 10px 15px;
+    border-radius: 10px;
+    margin: 5px 0;
+    /* Use relative width for responsiveness */
+    max-width: 90%;
+}
+
+/* Sent messages gradient correction */
+.message-bubble.sent {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #000;
+    border-bottom-right-radius: 5px;
+}
+
+/* Received messages */
+.message-bubble.received {
+    background: #242424;
+    color: #fff;
+    border-bottom-left-radius: 5px;
+}
+
+/* Location message container updates */
+.location-message-container {
+    width: 100%;
+}
+
+.location-message {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.location-header,
+.location-action {
+    text-align: center;
+    color: #FFD700;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.location-header i {
+    font-size: 1.2rem;
+    margin-right: 5px;
+}
+
+.location-preview {
+    width: 100%;
+    height: 120px;
+    border-radius: 8px;
+    border: 1px solid #555;
+    background: #242424;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Overlay for gradient and readability */
+.location-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.location-overlay i {
+    font-size: 2rem;
+    color: #FFD700;
+    margin-bottom: 5px;
+}
+
+.location-coordinates {
+    color: #fff;
+    font-size: 0.8rem;
+    text-align: center;
+    padding: 0 10px;
+}
+
+/* The map layer */
+.location-map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.5;
+    filter: grayscale(30%);
+}
+
+/* Responsive adjustments for small screens */
+@media (max-width: 480px) {
+    .chat-window {
+        max-width: 100%;
+        border-radius: 0;
+    }
+    .message-bubble {
+        max-width: 95%;
+        font-size: 0.9rem;
+    }
+    .location-header,
+    .location-action {
+        font-size: 0.8rem;
+    }
+    .location-overlay i {
+        font-size: 1.8rem;
+    }
+}
+
+/* تعديل استجابة عناصر الواجهة للشاشات الأصغر */
+@media (max-width: 768px) {
+    html {
+        font-size: 14px; /* تقليل الحجم الأساسي */
+    }
+    body, .app-header, .navbar, .side-nav, .bottom-nav, 
+    .driver-card, button, input, .form-control, .app-logo, .tools, .notification-toast {
+        font-size: 0.8em;
+        padding: 4px 6px;
+        margin: 4px;
+    }
+    i, .fa, .app-logo i, .tools .nav-link i {
+        font-size: 0.8em;
+    }
+    /* تقليل ارتفاع وعرض الحاويات الحساسة */
+    #map, .driver-image-container, .user-photo-upload, .driver-photo-upload {
+        max-height: 200px;
+        /* يمكن تعديل العرض أيضاً إن لزم */
+    }
+    /* ...يمكن إضافة المزيد من التعديلات حسب الحاجة... */
+}
+
+
+
 /* تحديث قياسات نافذة Swal2 */
 .swal2-html-container {
-    max-width: 90%;
-    width: 600px;
-    padding: 15px;
+    max-width: 100%;
+    width: 800px;
+    padding: 1px;
 }
 
 /* تحسين قياسات نافذة الدردشة */
@@ -7056,233 +7248,6 @@ body {
         }
     }
 
-    .side-nav.open {
-        animation: slideIn 0.3s ease forwards;
-    }
-
-    /* شريط الأدوات الجانبي */
-    /* شريط الأدوات الجانبي */
-    :root {
-        --side-nav-height-top: -0%;
-        /* المسافة من الأعلى */
-        --side-nav-height-bottom: 0%;
-        /* المسافة من الأسفل */
-        --side-nav-width: 200px;
-        /* عرض الشريط الجانبي */
-        --side-nav-border-radius: 40px;
-        /* تقويس الحواف */
-        --side-nav-bg-color: var(--secondary-color);
-        /* لون خلفية الشريط */
-        --side-nav-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
-        /* ظل الشريط */
-        --backdrop-bg-color: rgba(252, 252, 252, 0);
-        /* لون خلفية التمويه */
-    }
-
-    /* الشريط الجانبي */
-    .side-nav {
-        position: fixed;
-        top: var(--side-nav-height-top);
-        /* المسافة من الأعلى */
-        bottom: var(--side-nav-height-bottom);
-        /* المسافة من الأسفل */
-        right: 0;
-        /* ظهور الشريط على اليمين */
-        height: calc(100% - var(--side-nav-height-top) - var(--side-nav-height-bottom));
-        /* ارتفاع ديناميكي */
-        width: var(--side-nav-width);
-        /* عرض الشريط */
-        background: var(--side-nav-bg-color);
-        /* لون الخلفية */
-        transform: translateX(100%);
-        /* إخفاء الشريط افتراضيًا */
-        transition: transform 0.3s ease-in-out;
-        /* تأثير عند الفتح والإغلاق */
-        z-index: 9999;
-        /* ضمان الظهور فوق جميع العناصر */
-        box-shadow: var(--side-nav-shadow);
-        /* الظل */
-        border-radius: var(--side-nav-border-radius) 0 0 var(--side-nav-border-radius);
-        /* تقويس الحواف اليمنى فقط */
-    }
-
-    /* عند الفتح */
-    .side-nav.open {
-        transform: translateX(0);
-        /* عرض الشريط */
-    }
-
-    /* الخلفية الشفافة */
-    .nav-backdrop {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: var(--backdrop-bg-color);
-        /* خلفية سوداء شفافة */
-        z-index: 9998;
-        /* أقل قليلاً من الشريط الجانبي */
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
-    }
-
-    /* عند تفعيل الخلفية */
-    .nav-backdrop.open {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    /* عند الفتح */
-    .nav-backdrop.show {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    /* الفلاتر */
-    .location-filter {
-        position: relative;
-        z-index: 999;
-        /* أقل من الخلفية والشريط الجانبي */
-    }
-
-    .nav-toggle {
-        position: absolute;
-        /* لجعل الموضع النسبي للشريط */
-        top: 10px;
-        /* المسافة من أعلى الشريط */
-        right: 10px;
-        /* المسافة من الجانب الأيمن */
-        background-color: var(--primary-color);
-        /* لون الخلفية */
-        color: var(--secondary-color);
-        /* لون النص */
-        width: 25px;
-        /* عرض الزر */
-        height: 25px;
-        /* ارتفاع الزر */
-        border: none;
-        /* إزالة الحدود */
-        border-radius: 50%;
-        /* جعل الزر دائريًا */
-        display: flex;
-        /* لتوسيط الأيقونة */
-        align-items: center;
-        /* لتوسيط الأيقونة عموديًا */
-        justify-content: center;
-        /* لتوسيط الأيقونة أفقيًا */
-        box-shadow: 0 2px 10px rgb(243, 241, 241);
-        /* إضافة ظل */
-        cursor: pointer;
-        /* لتغيير المؤشر عند التمرير */
-        transition: transform 0.3s ease;
-        /* تأثير الانتقال */
-    }
-
-    .nav-toggle:hover {
-        transform: scale(1);
-        /* تكبير الزر قليلاً عند التمرير */
-        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
-        /* تحسين الظل */
-    }
-
-    /* أنماط زر إضافة السائق */
-    .add-driver-btn {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        /* مسافة بين الأيقونة والنص */
-        padding: 0.5rem 1rem;
-        /* حشوة داخلية */
-        background-color: var(--primary-color);
-        /* لون الخلفية الأساسي */
-        color: #fff;
-        /* لون النص */
-        border: none;
-        /* إزالة الإطار */
-        border-radius: 50px;
-        /* تقويس الحواف */
-        font-size: 1rem;
-        /* حجم النص */
-        cursor: pointer;
-        /* مؤشر التفاعل */
-        transition: all 0.3s ease-in-out;
-        /* تأثير عند التحويم */
-        text-align: left;
-        width: 100%;
-        /* ليظهر بعرض الزر الأصلي */
-    }
-
-    .add-driver-btn:hover {
-
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        /* إضافة ظل */
-    }
-
-    .add-driver-btn i {
-        font-size: 1.2rem;
-        /* حجم الأيقونة */
-        transition: transform 0.3s ease;
-        /* تأثير تكبير الأيقونة */
-    }
-
-    .add-driver-btn:hover i {
-        transform: scale(1.1);
-        /* تكبير الأيقونة عند التحويم */
-    }
-
-    .driver-status {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.9rem;
-        font-weight: 500;
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(4px);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .driver-card {
-        margin: 0;
-        /* أزل الفراغات الخارجية */
-        padding: 0rem;
-        /* حشوة داخلية بسيطة */
-        gap: 0.0rem;
-        /* فراغ بسيط بين العناصر داخل البطاقة */
-    }
-
-    .driver-card {
-        margin-bottom: 1rem;
-    }
-
-    .driver-card {
-        margin: 0;
-        padding: 0.0rem;
-        /* حشوة بسيطة داخلية للبطاقة */
-        box-sizing: border-box;
-    }
-
-    .driver-card {
-        margin-bottom: 1rem;
-    }
-
-    .driver-card {
-        margin-bottom: 1rem;
-    }
-
-    .driver-card {
-        background-color: #000000;
-        /* اللون الجديد */
-        border-radius: 20px;
-        overflow: hidden;
-        box-shadow: var(--card-shadow);
-        transition: var(--transition);
-        position: relative;
-        border: 1px solid rgb(228, 212, 212);
-    }
 
     /* تنسيق النوافذ المنبثقة */
     .dark-popup {
@@ -12211,122 +12176,6 @@ body {
     padding: 3px 6px;
     border: 2px solid #222222;
     transform: translate(-40%, -30%) !important;
-}
-
-/* تحسينات الشريط الجانبي */
-.side-nav {
-    position: fixed;
-    top: 0;
-    right: -280px;
-    width: 280px;
-    height: 100vh;
-    background-color: #1a1a1a;
-    z-index: 1050;
-    transition: all 0.3s ease;
-    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-}
-
-.side-nav.open {
-    right: 0;
-}
-
-.side-nav-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    border-bottom: 1px solid #333;
-}
-
-.side-nav-title {
-    color: #FFD700;
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: bold;
-}
-
-.side-nav-close {
-    background: transparent;
-    border: none;
-    color: #FFFFFF;
-    font-size: 1.8rem;
-    cursor: pointer;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-}
-
-.side-nav-close:hover {
-    color: #FF4136;
-}
-
-.side-nav-user-info {
-    padding: 20px 15px;
-    border-bottom: 1px solid #333;
-}
-
-.side-nav-user-info .btn-gold {
-    background-color: #FFD700;
-    color: #000000;
-    font-weight: bold;
-    transition: all 0.3s ease;
-}
-
-.side-nav-user-info .btn-gold:hover {
-    background-color: #F8C400;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
-}
-
-.side-nav-user-info .btn-outline-light {
-    transition: all 0.3s ease;
-}
-
-.side-nav-user-info .btn-outline-light:hover {
-    background-color: #FFFFFF;
-    color: #000000;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
-}
-
-.side-nav-items {
-    flex: 1;
-    padding: 15px;
-}
-
-.side-nav-item {
-    display: flex;
-    align-items: center;
-    padding: 12px 15px;
-    color: #FFFFFF;
-    text-decoration: none;
-    border-radius: 10px;
-    margin-bottom: 8px;
-    transition: all 0.3s ease;
-}
-
-.side-nav-item:hover, .side-nav-item.active {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: #FFD700;
-    transform: translateX(-5px);
-}
-
-.side-nav-item i {
-    margin-left: 10px;
-    font-size: 1.2rem;
-    width: 25px;
-    text-align: center;
-}
-
-.side-nav-footer {
-    padding: 15px;
-    border-top: 1px solid #333;
 }
 
 .logout-btn {
