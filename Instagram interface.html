@@ -688,46 +688,43 @@ function showUserMenu(event) {
     </div>
 </div>
 
-
 <!-- تحديث الشريط الجانبي ليشمل قسم معلومات المستخدم -->
-<div class="side-nav" id="sideNav">
-   
-    
+<div class="side-nav" id="sideNav" style="width: 250px; max-width: 80%; font-size: 0.9rem;">
     <!-- إضافة قسم معلومات المستخدم -->
     <div class="side-nav-user-info">
         <div class="text-center">
-            <i class="fas fa-user-circle text-white" style="font-size: 4rem;"></i>
-            <h6 class="text-white mt-3">مرحباً بك</h6>
+            <i class="fas fa-user-circle text-white" style="font-size: 3rem;"></i>
+            <h6 class="text-white mt-2">مرحباً بك</h6>
             <p class="text-white-50 small">قم بتسجيل الدخول للوصول إلى حسابك</p>
-            <div class="mt-3">
-                <button class="btn btn-gold w-100 mb-2" data-bs-toggle="modal" data-bs-target="#loginModal">
+            <div class="mt-2">
+                <button class="btn btn-gold w-100 mb-2" data-bs-toggle="modal" data-bs-target="#loginModal" style="font-size: 0.8rem;">
                     تسجيل الدخول
                 </button>
-                <button class="btn btn-outline-light w-100 mb-2" data-bs-toggle="modal" data-bs-target="#userRegistrationModal">
+                <button class="btn btn-outline-light w-100 mb-2" data-bs-toggle="modal" data-bs-target="#userRegistrationModal" style="font-size: 0.8rem;">
                     إنشاء حساب
                 </button>
-                <button class="btn btn-outline-light w-100" data-bs-toggle="modal" data-bs-target="#addDriverModal">
+                <button class="btn btn-outline-light w-100" data-bs-toggle="modal" data-bs-target="#addDriverModal" style="font-size: 0.8rem;">
                     إضافة سائق
                 </button>
             </div>
         </div>
     </div>
     <div class="side-nav-items">
-        <a href="/" class="side-nav-item"><i class="fas fa-home" style="color: #FFD700;"></i> الرئيسية</a>
-        <a href="drivers.html" class="side-nav-item"><i class="fas fa-users" style="color: #4CAF50;"></i> السائقين</a>
-        <a href="trip1s.html" class="side-nav-item"><i class="fas fa-car" style="color: #2196F3;"></i> الرحلات</a>
-        <a href="map.html" class="side-nav-item"><i class="fas fa-map" style="color: #FF5722;"></i> الخريطة</a>
-        <a href="notifications.html" class="side-nav-item"><i class="fas fa-bell" style="color: #9C27B0;"></i> الإشعارات</a>
-        <a href="messages.html" class="side-nav-item"><i class="fas fa-envelope" style="color: #FFC107;"></i> الرسائل</a>
-        <a href="settings.html" class="side-nav-item"><i class="fas fa-cog" style="color: #607D8B;"></i> الإعدادات</a>
-        <a href="#" class="side-nav-item driver-only" style="display: none;"><i class="fas fa-user-plus" style="color: #E91E63;"></i> إضافة سائق</a>
-        <a href="javascript:void(0)" class="side-nav-item" onclick="window.savedPostsManager.loadSavedPostsPage()">
+        <a href="/" class="side-nav-item" style="padding: 10px;"><i class="fas fa-home" style="color: #FFD700;"></i> الرئيسية</a>
+        <a href="drivers.html" class="side-nav-item" style="padding: 10px;"><i class="fas fa-users" style="color: #4CAF50;"></i> السائقين</a>
+        <a href="trip1s.html" class="side-nav-item" style="padding: 10px;"><i class="fas fa-car" style="color: #2196F3;"></i> الرحلات</a>
+        <a href="map.html" class="side-nav-item" style="padding: 10px;"><i class="fas fa-map" style="color: #FF5722;"></i> الخريطة</a>
+        <a href="notifications.html" class="side-nav-item" style="padding: 10px;"><i class="fas fa-bell" style="color: #9C27B0;"></i> الإشعارات</a>
+        <a href="messages.html" class="side-nav-item" style="padding: 10px;"><i class="fas fa-envelope" style="color: #FFC107;"></i> الرسائل</a>
+        <a href="settings.html" class="side-nav-item" style="padding: 10px;"><i class="fas fa-cog" style="color: #607D8B;"></i> الإعدادات</a>
+        <a href="#" class="side-nav-item driver-only" style="display: none; padding: 10px;"><i class="fas fa-user-plus" style="color: #E91E63;"></i> إضافة سائق</a>
+        <a href="javascript:void(0)" class="side-nav-item" onclick="window.savedPostsManager.loadSavedPostsPage()" style="padding: 10px;">
             <i class="fas fa-bookmark" style="color: #FF9800;"></i> المنشورات المحفوظة
         </a>
     </div>
     <!-- إضافة زر تسجيل الخروج في الشريط الجانبي -->
-    <div class="side-nav-footer">
-        <button onclick="handleLogout()" class="logout-btn">
+    <div class="side-nav-footer" style="padding: 10px;">
+        <button onclick="handleLogout()" class="logout-btn" style="font-size: 0.8rem;">
             <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
         </button>
     </div>
@@ -1277,75 +1274,71 @@ function showUserMenu(event) {
         </div>
     </div>
 </div>
-  <!-- نافذة الرسائل المنبثقة المحسنة -->
+<!-- نافذة الرسائل المنبثقة المحسنة -->
 <div class="modal fade" id="messagesModal" tabindex="-1" aria-labelledby="messagesModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content chat-modal-content">
-            <div class="modal-header chat-modal-header">
-                <h5 class="modal-title" id="messagesModalLabel">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 90%; margin: auto;">
+        <div class="modal-content chat-modal-content" style="border-radius: 15px; overflow: hidden;">
+            <div class="modal-header chat-modal-header" style="background: #333; color: #FFD700; padding: 10px;">
+                <h5 class="modal-title" id="messagesModalLabel" style="font-size: 1rem;">
                     <i class="fas fa-envelope-open-text me-2" style="color: #FFD700;"></i>
                     الرسائل
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body p-0">
+            <div class="modal-body p-0" style="background: #1a1a1a; color: #fff;">
                 <!-- قسم البحث في الرسائل -->
-                <div class="messages-search-container p-2 border-bottom">
+                <div class="messages-search-container p-2 border-bottom" style="background: #2a2a2a;">
                     <div class="input-group">
-                        <input type="text" id="messagesSearchInput" class="form-control" placeholder="البحث في الرسائل...">
-                        <span class="input-group-text">
+                        <input type="text" id="messagesSearchInput" class="form-control" placeholder="البحث في الرسائل..." style="font-size: 0.9rem; padding: 5px;">
+                        <span class="input-group-text" style="background: #333; color: #FFD700;">
                             <i class="fas fa-search"></i>
                         </span>
                     </div>
                 </div>
                 
                 <!-- فلتر الرسائل -->
-                <div class="messages-filter-container p-2 border-bottom">
+                <div class="messages-filter-container p-2 border-bottom" style="background: #2a2a2a;">
                     <div class="btn-group w-100" role="group">
                         <input type="radio" class="btn-check" name="messageFilterType" id="allMessages" checked>
-                        <label class="btn btn-outline-primary" for="allMessages">الكل</label>
+                        <label class="btn btn-outline-primary" for="allMessages" style="font-size: 0.8rem;">الكل</label>
 
                         <input type="radio" class="btn-check" name="messageFilterType" id="driverMessages">
-                        <label class="btn btn-outline-primary" for="driverMessages">السائقين</label>
+                        <label class="btn btn-outline-primary" for="driverMessages" style="font-size: 0.8rem;">السائقين</label>
 
                         <input type="radio" class="btn-check" name="messageFilterType" id="userMessages">
-                        <label class="btn btn-outline-primary" for="userMessages">المستخدمين</label>
+                        <label class="btn btn-outline-primary" for="userMessages" style="font-size: 0.8rem;">المستخدمين</label>
 
                         <input type="radio" class="btn-check" name="messageFilterType" id="unreadMessages">
-                        <label class="btn btn-outline-primary" for="unreadMessages">غير مقروءة</label>
+                        <label class="btn btn-outline-primary" for="unreadMessages" style="font-size: 0.8rem;">غير مقروءة</label>
                     </div>
                 </div>
 
                 <!-- حاوية الرسائل -->
-                <div id="messagesList" class="messages-list">
-                    <div class="loading-messages">
-                        <div class="spinner-border text-gold" role="status">
+                <div id="messagesList" class="messages-list" style="max-height: 300px; overflow-y: auto; padding: 10px;">
+                    <div class="loading-messages text-center">
+                        <div class="spinner-border text-gold" role="status" style="width: 1.5rem; height: 1.5rem;">
                             <span class="visually-hidden">جاري التحميل...</span>
                         </div>
-                        <p>جاري تحميل الرسائل...</p>
+                        <p style="font-size: 0.9rem;">جاري تحميل الرسائل...</p>
                     </div>
                 </div>
                 
                 <!-- رسالة لا توجد رسائل -->
-                <div id="noMessagesContainer" class="no-messages-container d-none">
-                    <div class="no-messages-content text-center p-5">
-                        <i class="fas fa-envelope-open fa-4x mb-3" style="color: #555;"></i>
-                        <h5>لا توجد رسائل</h5>
-                        <p class="text-muted">لم يتم العثور على أي رسائل.</p>
-                    </div>
+                <div id="noMessagesContainer" class="no-messages-container d-none text-center p-3">
+                    <i class="fas fa-envelope-open fa-3x mb-2" style="color: #555;"></i>
+                    <h6 style="font-size: 1rem;">لا توجد رسائل</h6>
+                    <p class="text-muted" style="font-size: 0.8rem;">لم يتم العثور على أي رسائل.</p>
                 </div>
                 
                 <!-- رسالة خطأ -->
-                <div id="errorMessagesContainer" class="error-messages-container d-none">
-                    <div class="error-messages-content text-center p-5">
-                        <i class="fas fa-exclamation-triangle fa-4x mb-3 text-danger"></i>
-                        <h5>حدث خطأ</h5>
-                        <p class="text-muted" id="errorMessagesText">حدث خطأ أثناء تحميل الرسائل.</p>
-                        <button class="btn btn-primary mt-3" onclick="loadMessagesBetweenUsersAndDrivers()">
-                            <i class="fas fa-sync-alt me-2"></i>
-                            إعادة المحاولة
-                        </button>
-                    </div>
+                <div id="errorMessagesContainer" class="error-messages-container d-none text-center p-3">
+                    <i class="fas fa-exclamation-triangle fa-3x mb-2 text-danger"></i>
+                    <h6 style="font-size: 1rem;">حدث خطأ</h6>
+                    <p class="text-muted" id="errorMessagesText" style="font-size: 0.8rem;">حدث خطأ أثناء تحميل الرسائل.</p>
+                    <button class="btn btn-primary mt-2" onclick="loadMessagesBetweenUsersAndDrivers()" style="font-size: 0.8rem; padding: 5px 10px;">
+                        <i class="fas fa-sync-alt me-1"></i>
+                        إعادة المحاولة
+                    </button>
                 </div>
             </div>
         </div>
@@ -1353,15 +1346,15 @@ function showUserMenu(event) {
 </div>
 <!-- نافذة المحادثة بين المستخدم والسائق -->
 <div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content chat-window" style="max-width: 95%; border-radius: 15px; overflow: hidden;">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 80%; margin: auto;">
+        <div class="modal-content chat-window" style="border-radius: 8px; overflow: hidden;">
             <!-- رأس النافذة -->
-            <div class="chat-header" style="background: #333; color: #FFD700; padding: 15px; display: flex; align-items: center; justify-content: space-between;">
+            <div class="chat-header" style="background: #333; color: #FFD700; padding: 8px; display: flex; align-items: center; justify-content: space-between;">
                 <div class="chat-user-info d-flex align-items-center">
-                    <img id="chatUserAvatar" src="default-avatar.png" alt="صورة المستخدم" class="avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                    <img id="chatUserAvatar" src="default-avatar.png" alt="صورة المستخدم" class="avatar" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover;">
                     <div class="ms-2">
-                        <h5 id="chatUserName" style="margin: 0; font-size: 1.2rem;">اسم المستخدم</h5>
-                        <p id="chatUserInfo" class="mb-0 small text-white-50" style="font-size: 0.9rem;">معلومات إضافية</p>
+                        <h6 id="chatUserName" style="margin: 0; font-size: 0.9rem;">اسم المستخدم</h6>
+                        <p id="chatUserInfo" class="mb-0 small text-white-50" style="font-size: 0.7rem;">معلومات إضافية</p>
                     </div>
                 </div>
                 <div class="chat-header-actions">
@@ -1370,34 +1363,34 @@ function showUserMenu(event) {
             </div>
             
             <!-- جسم المحادثة -->
-            <div class="chat-body" id="chatMessagesContainer" style="background: #1a1a1a; color: #fff; padding: 15px; max-height: 60vh; overflow-y: auto;">
-                <div class="loading-messages" style="text-align: center; padding: 20px;">
+            <div class="chat-body" id="chatMessagesContainer" style="background: #1a1a1a; color: #fff; padding: 8px; max-height: 40vh; overflow-y: auto;">
+                <div class="loading-messages" style="text-align: center; padding: 10px;">
                     <div class="spinner-border text-gold" role="status">
                         <span class="visually-hidden">جاري التحميل...</span>
                     </div>
-                    <p style="margin-top: 10px;">جاري تحميل الرسائل...</p>
+                    <p style="margin-top: 5px; font-size: 0.8rem;">جاري تحميل الرسائل...</p>
                 </div>
             </div>
             
             <!-- تذكير إرسال الموقع -->
-            <div id="locationReminderBanner" class="location-reminder-banner d-none" style="background: #FFD700; color: #000; padding: 10px; display: flex; align-items: center; justify-content: space-between;">
+            <div id="locationReminderBanner" class="location-reminder-banner d-none" style="background: #FFD700; color: #000; padding: 6px; display: flex; align-items: center; justify-content: space-between;">
                 <div class="d-flex align-items-center">
                     <i class="fas fa-map-marker-alt text-danger me-2"></i>
-                    <span style="font-size: 0.9rem;">مشاركة موقعك الحالي تساعد السائق على إيجادك بسهولة!</span>
+                    <span style="font-size: 0.7rem;">مشاركة موقعك الحالي تساعد السائق على إيجادك بسهولة!</span>
                 </div>
-                <button class="btn btn-sm btn-primary ms-auto" id="quickShareLocationBtn" style="background: #333; color: #FFD700; border: none; padding: 5px 10px; border-radius: 5px;">
+                <button class="btn btn-sm btn-primary ms-auto" id="quickShareLocationBtn" style="background: #333; color: #FFD700; border: none; padding: 4px 6px; border-radius: 5px; font-size: 0.7rem;">
                     <i class="fas fa-location-arrow me-1"></i>
                     مشاركة موقعي
                 </button>
             </div>
             
             <!-- شريط الإدخال -->
-            <div class="chat-footer" style="background: #333; padding: 10px; display: flex; align-items: center; gap: 10px;">
-                <button class="action-button location-btn" id="shareLocationBtn" title="مشاركة الموقع" style="background: #FFD700; color: #000; border: none; padding: 10px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+            <div class="chat-footer" style="background: #333; padding: 6px; display: flex; align-items: center; gap: 6px;">
+                <button class="action-button location-btn" id="shareLocationBtn" title="مشاركة الموقع" style="background: #FFD700; color: #000; border: none; padding: 6px; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">
                     <i class="fas fa-map-marker-alt"></i>
                 </button>
-                <input type="text" class="chat-input" id="chatMessageInput" placeholder="اكتب رسالتك هنا..." style="flex: 1; padding: 10px; border: 1px solid #FFD700; border-radius: 20px; background: #1a1a1a; color: #fff;">
-                <button class="action-button send-btn" id="sendMessageBtn" style="background: #FFD700; color: #000; border: none; padding: 10px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                <input type="text" class="chat-input" id="chatMessageInput" placeholder="اكتب رسالتك هنا..." style="flex: 1; padding: 6px; border: 1px solid #FFD700; border-radius: 12px; background: #1a1a1a; color: #fff; font-size: 0.8rem;">
+                <button class="action-button send-btn" id="sendMessageBtn" style="background: #FFD700; color: #000; border: none; padding: 6px; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;"></button>
                     <i class="fas fa-paper-plane"></i>
                 </button>
             </div>

@@ -3691,87 +3691,54 @@ body {
 
 /* ...existing code... */
 
-/* إعدادات تكييف الواجهة */
-@media (max-width: 768px) {
-    :root {
-        --border-radius-sm: 4px;
-        --border-radius-md: 8px;
-        --border-radius-lg: 12px;
-        --spacing-xs: 0.2rem;
-        --spacing-sm: 0.4rem;
-        --spacing-md: 0.8rem;
-        --spacing-lg: 1.2rem;
-    }
-    
-    .app-header {
-        height: 45px;
-        padding: 0 var(--spacing-sm);
-        font-size: 0.9rem;
-    }
-    
-    .app-logo {
-        font-size: 1rem;
-    }
-    
-    .tools .nav-link {
-        font-size: 0.9rem;
-    }
-    
-    .driver-card {
-        margin-bottom: var(--spacing-sm);
-        border-radius: var(--border-radius-md);
-        padding: var(--spacing-sm);
-    }
-    
-    .modal-content {
-        padding: var(--spacing-sm);
-        border-radius: var(--border-radius-md);
-    }
-    
-    .notification-toast {
-        font-size: 0.9rem;
-        padding: var(--spacing-sm);
-    }
-    
-    /* ضبط نافذة الدردشة لتناسب العرض */
-    .chat-window {
-        width: 100%;
-        height: calc(100vh - 100px);
-        font-size: 0.9rem;
-    }
-    
-    /* تعديل عرض الشريط الجانبي */
-    .side-nav {
-        width: 70%;
-        font-size: 1rem;
-    }
-    
-    /* ضبط أحجام الأيقونات */
-    .app-logo i,
-    .tools .nav-link i,
-    .user-profile-btn img {
-        width: 30px;
-        height: 30px;
-    }
+/* تحديث قياسات نافذة Swal2 */
+.swal2-html-container {
+    max-width: 90%;
+    width: 600px;
+    padding: 15px;
 }
 
-@media (min-width: 769px) and (max-width: 1200px) {
-    .app-header {
-        height: 50px;
-        padding: 0 var(--spacing-md);
+/* تحسين قياسات نافذة الدردشة */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 80vh; /* يمكنك تعديل هذه القيمة حسب رغبتك */
+}
+
+/* تعديل محتوى الرسائل لجعله أكثر تجاوباً */
+.chat-body {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+/* تحديث مقاسات تذييل الدردشة */
+.chat-footer {
+    padding: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+/* جعل فقاعات الرسائل المستلمة أكثر استجابة */
+.message-bubble.received {
+    max-width: 90%;
+    width: auto;
+}
+
+@media (max-width: 768px) {
+    .modal-dialog.modal-lg {
+        max-width: 95%;
+        margin: 1rem auto; /* تقليل الهوامش */
     }
-    
-    .driver-card {
-        margin-bottom: var(--spacing-md);
-        border-radius: var(--border-radius-lg);
+    .chat-modal-content {
+        padding: 0.5rem; /* تقليل الحشو */
     }
-    
-    .chat-window {
-        font-size: 1rem;
+    .messages-search-container,
+    .messages-filter-container {
+        padding: 0.5rem;
     }
-    
-    .side-nav {
-        width: 250px;
+    .message-item {
+        font-size: 0.9rem; /* تقليل حجم الخط */
     }
 }
 
