@@ -1581,7 +1581,6 @@ window.chatSystem = new ChatSystem();
 // تكامل نظام المراسلة مع وحدة المنشورات
 // ==================================================================
 
-// تعديل وحدة المنشورات لدعم المراسلة
 const originalPostsManager = window.postsManager || {};
 
 class EnhancedPostsManager {
@@ -1657,16 +1656,16 @@ class EnhancedPostsManager {
         const postActions = postElement.querySelector('.post-actions');
         if (!postActions) return;
         
-        // التحقق من أن المنشور مكتوب بواسطة سائق
+        // التأكد من أن المنشور مكتوب بواسطة سائق أو له authorId
         if (!postData.fromDriver && !postData.authorId) return;
         
         // التأكد من عدم وجود زر محادثة بالفعل
         if (postActions.querySelector('.chat-btn')) return;
         
-        // الحصول على معرف الكاتب
+        // الحصول على معرف الكاتب (المستقبل)
         const authorId = postData.authorId;
         
-        // إنشاء زر المراسلة
+        // إنشاء زر المراسلة مع إضافة data-target attribute لمعرف المستقبل
         const chatButton = document.createElement('button');
         chatButton.className = 'post-action-btn chat-btn';
         chatButton.setAttribute('data-post-id', postId);
@@ -1687,27 +1686,31 @@ class EnhancedPostsManager {
             });
         }
         
-        // إضافة معالج النقر
+        // تعديل معالج النقر لعرض المحادثة بين المستخدم الحالي والمستقبل فقط
         chatButton.addEventListener('click', (event) => {
             event.preventDefault();
             event.stopPropagation();
-            
-            // فتح المحادثة
+            const targetUserId = chatButton.getAttribute('data-author-id');
+            const currentUser = window.chatSystem && window.chatSystem.currentUser;
+            // منع المستخدم من مراسلة نفسه
+            if (currentUser && currentUser.uid === targetUserId) {
+                showToast('لا يمكنك مراسلة نفسك. الرجاء اختيار منشور لمستخدم آخر.', 'warning');
+                return;
+            }
             if (window.chatSystem) {
-                window.chatSystem.openChatWithUser(authorId);
+                // فتح المحادثة بين المستخدم الحالي والمستقبل
+                window.chatSystem.openChatWithUser(targetUserId);
             } else {
                 showToast('نظام المراسلة غير متاح حاليًا', 'error');
             }
         });
         
-        // إدراج زر المراسلة بعد زر الإعجاب
+        // إدراج زر المراسلة بعد زر الإعجاب أو في النهاية
         const likeButton = postActions.querySelector('.like-btn');
         const commentButton = postActions.querySelector('.comment-btn');
-        
         if (likeButton && commentButton) {
             postActions.insertBefore(chatButton, commentButton);
         } else {
-            // إضافة في النهاية إذا لم يتم العثور على الأزرار الأخرى
             postActions.appendChild(chatButton);
         }
     }
